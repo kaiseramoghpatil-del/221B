@@ -3,27 +3,27 @@
 @import "@fontsource/jetbrains-mono/600.css";
 @import "tailwindcss";
 
-/* 221B tokens — see docs/DESIGN.md. Crimson is reserved for the attacker's path. */
+/* 221B tokens, see docs/DESIGN.md. Crimson is reserved for the attacker's path. */
 @theme {
-  --color-paper: #f6f7f8;
-  --color-sheet: #ffffff;
-  --color-graphite: #1c2128;
-  --color-slate: #5b6573;
-  --color-mist: #8a94a2;
-  --color-rule: #dce0e5;
-  --color-rule-soft: #eceff2;
-  --color-breach: #b4152b;
-  --color-breach-soft: #f8e7ea;
-  --color-watch: #9a6100;
-  --color-watch-soft: #fbf1df;
-  --color-cleared: #2f7d6d;
-  --color-cleared-soft: #e3f1ed;
+  --color-paper: #12161b;
+  --color-sheet: #1a1f26;
+  --color-graphite: #e8ebef;
+  --color-slate: #9aa3af;
+  --color-mist: #6b7480;
+  --color-rule: #2a313b;
+  --color-rule-soft: #20262e;
+  --color-breach: #e0283f;
+  --color-breach-soft: #3a1720;
+  --color-watch: #e5a83b;
+  --color-watch-soft: #30261a;
+  --color-cleared: #4fb39d;
+  --color-cleared-soft: #16302a;
   --font-sans: "Archivo Variable", "Archivo", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html,
@@ -99,4 +99,12 @@ select {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* guided tour: the element the current step is about */
+.tour-focus {
+  outline: 2px solid var(--color-breach);
+  outline-offset: 4px;
+  border-radius: 4px;
+  transition: outline-color 0.2s;
 }

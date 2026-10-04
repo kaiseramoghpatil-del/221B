@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Logo from "../components/Logo";
+import Tour from "../components/Tour";
 import {
   api,
   ApiError,
@@ -130,7 +132,7 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
       <main id="main" className="mx-auto max-w-[720px] px-6 py-20">
         <h1 className="w-cond text-[34px] font-[700]">This case could not be opened</h1>
         <p className="mt-3 text-slate">{error}</p>
-        <a href="/" className="mt-6 inline-block rounded-[4px] bg-graphite px-4 py-2 font-[600] text-white">
+        <a href="/" className="mt-6 inline-block rounded-[4px] bg-graphite px-4 py-2 font-[600] text-paper">
           Start a new investigation
         </a>
       </main>
@@ -159,14 +161,14 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
     <div className="min-h-full">
       <header className="sticky top-0 z-30 border-b border-rule bg-paper/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1560px] flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3">
-          <a href="/" className="w-cond text-[24px] leading-none font-[750] tracking-[-0.01em] hover:text-breach" aria-label="221B, start a new investigation">
-            221B
+          <a href="/" className="text-graphite hover:opacity-80" aria-label="221B, start a new investigation">
+            <Logo height={30} />
           </a>
           <p className="min-w-0 truncate text-[14px] text-slate">
             {data.summary.name}
             {data.summary.parse_report ? `, ${data.summary.parse_report.files.length} log files` : ""}
           </p>
-          <div role="group" aria-label="View" className="ml-auto flex rounded-[4px] border border-rule bg-sheet p-0.5 text-[13.5px]">
+          <div role="group" aria-label="View" data-tour="views" className="ml-auto flex rounded-[4px] border border-rule bg-sheet p-0.5 text-[13.5px]">
             {[
               ["Reconstructed", undefined],
               ["Isolated alerts", "alerts"],
@@ -176,7 +178,7 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
                 type="button"
                 aria-pressed={url.view === v}
                 onClick={() => setUrl({ view: v as "alerts" | undefined, claim: undefined })}
-                className={`rounded-[3px] px-3 py-1.5 transition-colors ${url.view === v ? "bg-graphite text-white" : "text-slate hover:text-graphite"}`}
+                className={`rounded-[3px] px-3 py-1.5 transition-colors ${url.view === v ? "bg-graphite text-paper" : "text-slate hover:text-graphite"}`}
               >
                 {label}
               </button>
@@ -189,19 +191,20 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
             <button
               type="button"
               onClick={() => setUrl({ reveal: "1" })}
-              className="rounded-[4px] border border-graphite px-3 py-1.5 text-[13.5px] font-[600] transition-colors hover:bg-graphite hover:text-white"
+              data-tour="reveal"
+              className="rounded-[4px] border border-graphite px-3 py-1.5 text-[13.5px] font-[600] transition-colors hover:bg-graphite hover:text-paper"
             >
               Reveal the answer key
             </button>
           )}
         </div>
-        <div className="mx-auto max-w-[1560px] px-5 pb-3">
+        <div className="mx-auto max-w-[1560px] px-5 pb-3" data-tour="case-funnel">
           <Funnel summary={data.summary} />
         </div>
       </header>
 
       <div className="mx-auto grid max-w-[1560px] grid-cols-[minmax(0,1fr)] gap-7 px-5 py-6 lg:grid-cols-[236px_minmax(0,1fr)] xl:grid-cols-[236px_minmax(0,1fr)_372px]">
-        <aside className="order-3 lg:order-1">
+        <aside className="order-3 lg:order-1" data-tour="rail">
           <Rail incidents={data.incidents} selected={incidentId} onSelect={(id) => setUrl({ incident: id, view: undefined, claim: undefined })} suspects={data.suspects} />
         </aside>
 
@@ -227,9 +230,11 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
             </p>
           ) : (
             <>
-              <Verdict detail={detail} suspects={data.suspects} />
+              <div data-tour="verdict">
+                <Verdict detail={detail} suspects={data.suspects} />
+              </div>
 
-              <section aria-labelledby="exa-h" className="mt-6">
+              <section aria-labelledby="exa-h" className="mt-6" data-tour="exa">
                 <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
                   <div>
                     <h2 id="exa-h" className="w-semi text-[19px] font-[650]">
@@ -272,7 +277,7 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
                 </div>
               </section>
 
-              <section aria-labelledby="exb-h" className="mt-7">
+              <section aria-labelledby="exb-h" className="mt-7" data-tour="exb">
                 <h2 id="exb-h" className="w-semi text-[19px] font-[650]">
                   Exhibit B. When it happened
                 </h2>
@@ -297,7 +302,7 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
           )}
         </main>
 
-        <aside aria-label="Findings and evidence" className="order-2 min-w-0 lg:order-3 lg:col-span-2 xl:col-span-1">
+        <aside aria-label="Findings and evidence" data-tour="findings" className="order-2 min-w-0 lg:order-3 lg:col-span-2 xl:col-span-1">
           {detail && !isAlerts && (
             <>
               <Findings detail={detail} attacker={attackerLabels} focusStep={focusStep} onFocus={setFocusStep} onOpenClaim={openClaim} activeClaim={url.claim} />
@@ -307,6 +312,21 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
         </aside>
       </div>
 
+      <Tour
+        id="case"
+        steps={[
+          { target: "case-funnel", title: "What happened to the logs", body: "Every log line was read, checked by 11 detection rules, and only the alerts that cause each other were joined into an incident." },
+          { target: "verdict", title: "The verdict", body: "One sentence on who got in, how, and what they took, with a confidence score." },
+          { target: "exa", title: "Attack path", body: "Rows are places, columns are attack stages. Press Replay to watch the attacker move. Click any box to see its evidence." },
+          { target: "exb", title: "Timeline", body: "Each login session on a real clock. Hops between servers sit under the session they came from." },
+          { target: "findings", title: "Findings and proof", body: "Each numbered step opens the exact log lines behind it, plus the rule that fired." },
+          { target: "rail", title: "Incidents and suspects", body: "Every incident, the watchlist of weaker leads, and each account and address involved, ranked." },
+          { target: "views", title: "Compare with plain alerts", body: "Switch to Isolated alerts to see what a normal rule console would show you instead." },
+          ...(data.summary.source === "scenario"
+            ? [{ target: "reveal", title: "Check the answer", body: "Generated cases have a hidden answer key. Reveal it to score 221B against the truth." }]
+            : []),
+        ]}
+      />
       <EvidenceDrawer caseId={caseId} target={drawer} onClose={closeDrawer} />
       {data.summary.source === "scenario" && <RevealDialog caseId={caseId} open={url.reveal === "1"} onClose={() => setUrl({ reveal: undefined })} />}
     </div>

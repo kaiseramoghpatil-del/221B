@@ -19,10 +19,7 @@ export default function App() {
           <Verify onOpenCase={(caseId) => setUrl({ case: caseId, page: undefined })} />
         </>
       ) : (
-        <>
-          <SiteHeader current="home" />
-          <Intake onOpen={(caseId) => setUrl({ case: caseId, incident: undefined, view: undefined, claim: undefined })} />
-        </>
+        <Intake onOpen={(caseId) => setUrl({ case: caseId, incident: undefined, view: undefined, claim: undefined })} />
       )}
     </>
   );

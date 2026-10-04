@@ -1,6 +1,7 @@
 """In-memory case store with a bounded LRU (a 49k-event case holds ~225 MB; small hosts have 512 MB).
 
 CASE_LIMIT (env, default 6): how many analysed cases are kept. The least recently used one is evicted.
+Pinned cases (the demo case) are kept as well and never evicted.
 Identical scenario requests (same seed + params) reuse the existing case instead of re-analysing.
 """
 from __future__ import annotations
@@ -36,6 +37,7 @@ class CaseRecord:
     analysis: Any = None  # backend.pipeline.Analysis
     views: Any = None  # backend.views.CaseViews
     scenario_key: str | None = None
+    pinned: bool = False
 
     def summary(self) -> CaseSummary:
         n = len(self.ingest.events) if self.ingest else 0
@@ -54,15 +56,16 @@ class CaseStore:
         self._lock = threading.Lock()
         self.limit = limit
 
-    def create(self, name: str, source: CaseSource, scenario_key: str | None = None) -> CaseRecord:
-        rec = CaseRecord(case_id="case-" + uuid.uuid4().hex[:8], name=name, source=source, scenario_key=scenario_key)
+    def create(self, name: str, source: CaseSource, scenario_key: str | None = None, pinned: bool = False) -> CaseRecord:
+        rec = CaseRecord(case_id="case-" + uuid.uuid4().hex[:8], name=name, source=source, scenario_key=scenario_key, pinned=pinned)
         with self._lock:
             self._cases[rec.case_id] = rec
             if scenario_key:
                 self._by_scenario[scenario_key] = rec.case_id
             evicted = False
-            while len(self._cases) > self.limit:
-                old_id, old = self._cases.popitem(last=False)
+            while sum(not c.pinned for c in self._cases.values()) > self.limit:
+                old_id = next(cid for cid, c in self._cases.items() if not c.pinned)
+                old = self._cases.pop(old_id)
                 if old.scenario_key and self._by_scenario.get(old.scenario_key) == old_id:
                     del self._by_scenario[old.scenario_key]
                 evicted = True

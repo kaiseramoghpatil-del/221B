@@ -1,0 +1,288 @@
+{
+ "seed": 1,
+ "template": "T1",
+ "funnel": {
+  "events": 48753,
+  "signals": 141,
+  "linked_signals": 11,
+  "incidents": 1,
+  "watchlist": 1
+ },
+ "window": {
+  "start": "2026-09-27T23:47:07Z",
+  "end": "2026-10-01T23:59:53Z"
+ },
+ "parse": {
+  "lines_total": 48754,
+  "lines_skipped": 1,
+  "lines_quarantined": 0
+ },
+ "incident": {
+  "title": "Password spray → valid-password login → lateral movement → data exfiltration",
+  "confidence": 0.916,
+  "t_start": "2026-09-29T13:36:50Z",
+  "t_end": "2026-09-30T02:15:37Z",
+  "user": "h.petrov",
+  "entry_ip": "198.19.76.39",
+  "entry_host": "bastion-01",
+  "gb_out": 3.58,
+  "hosts": [
+   "app-01",
+   "bastion-01",
+   "db-01"
+  ]
+ },
+ "steps": [
+  {
+   "order": 1,
+   "stage": "RECON",
+   "host": "198.19.76.39",
+   "t": "2026-09-29T13:36:50Z",
+   "text": "198.19.76.39 tried 14 real account names (35 attempts) over 4.0 h - a password spray",
+   "events": 35
+  },
+  {
+   "order": 2,
+   "stage": "INITIAL_ACCESS",
+   "host": "bastion-01",
+   "t": "2026-09-29T19:35:46Z",
+   "text": "h.petrov logged in to bastion-01 from 198.19.76.39, the same IP that had just made 35 failed login attempts",
+   "events": 31
+  },
+  {
+   "order": 3,
+   "stage": "EXECUTION",
+   "host": "bastion-01",
+   "t": "2026-09-29T19:43:22.485000Z",
+   "text": "h.petrov ran 6 reconnaissance commands on bastion-01 within 43 min: whoami, id, uname -a, cat /etc/passwd, ss -tulpn, ip neigh",
+   "events": 6
+  },
+  {
+   "order": 4,
+   "stage": "DISCOVERY",
+   "host": "bastion-01",
+   "t": "2026-09-29T20:26:39Z",
+   "text": "bastion-01 probed 57 internal host:port pairs in 19 min (49 refused)",
+   "events": 57
+  },
+  {
+   "order": 5,
+   "stage": "PRIV_ESC",
+   "host": "bastion-01",
+   "t": "2026-09-29T21:29:33Z",
+   "text": "h.petrov ran '/bin/bash' as root on bastion-01 - first time this account used root there (interactive root shell)",
+   "events": 1
+  },
+  {
+   "order": 6,
+   "stage": "PERSISTENCE",
+   "host": "bastion-01",
+   "t": "2026-09-29T21:53:46.489000Z",
+   "text": "h.petrov added an SSH key to /root/.ssh/authorized_keys on bastion-01",
+   "events": 1
+  },
+  {
+   "order": 7,
+   "stage": "LATERAL_MOVEMENT",
+   "host": "app-01",
+   "t": "2026-09-29T22:26:01Z",
+   "text": "h.petrov hopped from bastion-01 to app-01",
+   "events": 1
+  },
+  {
+   "order": 8,
+   "stage": "LATERAL_MOVEMENT",
+   "host": "db-01",
+   "t": "2026-09-29T22:42:23Z",
+   "text": "h.petrov hopped from app-01 to db-01 - first time this account ever reached db-01",
+   "events": 1
+  },
+  {
+   "order": 9,
+   "stage": "COLLECTION",
+   "host": "db-01",
+   "t": "2026-09-29T23:26:09.779000Z",
+   "text": "h.petrov read 3.48 GB from /var/lib/postgresql/dump on db-01. Also: h.petrov archived data on db-01: 'tar czf /tmp/.sys.tgz /var/lib/postgresql/dump'",
+   "events": 2
+  },
+  {
+   "order": 10,
+   "stage": "EXFILTRATION",
+   "host": "db-01",
+   "t": "2026-09-29T23:47:22Z",
+   "text": "db-01 sent 3.58 GB to 198.19.76.39 over 2.5 h in 17 transfers - a destination it had never contacted",
+   "events": 17
+  }
+ ],
+ "log": [
+  {
+   "line": "Sep 29 13:33:44 bastion-01 sshd[10480]: Connection closed by invalid user guest 198.18.111.16 port 49748 [preauth]",
+   "step": null
+  },
+  {
+   "line": "Sep 29 13:33:44 bastion-01 sshd[10529]: Connection closed by invalid user ubuntu 198.18.111.16 port 54172 [preauth]",
+   "step": null
+  },
+  {
+   "line": "Sep 29 13:36:50 bastion-01 sshd[9350]: Failed password for s.mehta from 198.19.76.39 port 37365 ssh2",
+   "step": 1
+  },
+  {
+   "line": "Sep 29 13:37:20 bastion-01 sshd[10935]: Invalid user pi from 198.19.140.76 port 41267",
+   "step": null
+  },
+  {
+   "line": "Sep 29 19:31:31 bastion-01 sshd[25913]: Failed password for invalid user jenkins from 198.19.45.32 port 40220 ssh2",
+   "step": null
+  },
+  {
+   "line": "Sep 29 19:31:33 bastion-01 sshd[25925]: Connection closed by invalid user jenkins 198.19.45.32 port 33312 [preauth]",
+   "step": null
+  },
+  {
+   "line": "Sep 29 19:35:46 bastion-01 sshd[10007]: Accepted password for h.petrov from 198.19.76.39 port 50836 ssh2",
+   "step": 2
+  },
+  {
+   "line": "Sep 29 19:37:16 bastion-01 sshd[25947]: Invalid user user from 198.19.190.91 port 39879",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"cd /srv/app\",\"ts\":\"2026-09-29T19:16:17.046Z\",\"user\":\"j.owens\"}",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"git pull\",\"ts\":\"2026-09-29T19:19:00.046Z\",\"user\":\"j.owens\"}",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"whoami\",\"ts\":\"2026-09-29T19:43:22.485Z\",\"user\":\"h.petrov\"}",
+   "step": 3
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"id\",\"ts\":\"2026-09-29T19:46:35.615Z\",\"user\":\"h.petrov\"}",
+   "step": null
+  },
+  {
+   "line": "2026-09-29T20:25:12Z,web-02,10.0.1.11,10.0.1.20,8080,tcp,793888,727015,allowed",
+   "step": null
+  },
+  {
+   "line": "2026-09-29T20:25:12Z,app-01,10.0.1.20,10.0.1.30,5432,tcp,1651638,1753029,allowed",
+   "step": null
+  },
+  {
+   "line": "2026-09-29T20:26:39Z,bastion-01,10.0.0.5,10.0.1.10,5432,tcp,71,147,allowed",
+   "step": 4
+  },
+  {
+   "line": "2026-09-29T20:26:40Z,bastion-01,10.0.0.5,10.0.1.10,3306,tcp,109,0,denied",
+   "step": null
+  },
+  {
+   "line": "Sep 29 21:29:31 bastion-01 sshd[31966]: Invalid user git from 198.18.116.45 port 45288",
+   "step": null
+  },
+  {
+   "line": "Sep 29 21:29:32 bastion-01 sshd[31966]: Failed password for invalid user git from 198.18.116.45 port 45288 ssh2",
+   "step": null
+  },
+  {
+   "line": "Sep 29 21:29:33 bastion-01 sudo:   h.petrov : TTY=pts/2 ; PWD=/home/h.petrov ; USER=root ; COMMAND=/bin/bash",
+   "step": 5
+  },
+  {
+   "line": "Sep 29 21:29:34 bastion-01 sshd[32004]: Connection closed by invalid user git 198.18.116.45 port 44544 [preauth]",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"htop\",\"ts\":\"2026-09-29T21:39:47.674Z\",\"user\":\"n.yilmaz\"}",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"docker ps\",\"ts\":\"2026-09-29T21:53:13.046Z\",\"user\":\"j.owens\"}",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"key_add\",\"host\":\"bastion-01\",\"object\":\"/root/.ssh/authorized_keys\",\"ts\":\"2026-09-29T21:53:46.489Z\",\"user\":\"h.petrov\"}",
+   "step": 6
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"curl -s localhost:8080/health\",\"ts\":\"2026-09-29T22:02:08.146Z\",\"user\":\"m.costa\"}",
+   "step": null
+  },
+  {
+   "line": "Sep 29 22:22:38 bastion-01 sshd[36068]: Connection closed by invalid user postgres 198.18.2.182 port 54938 [preauth]",
+   "step": null
+  },
+  {
+   "line": "Sep 29 22:22:38 bastion-01 sshd[36126]: Failed password for root from 198.18.2.182 port 57179 ssh2",
+   "step": null
+  },
+  {
+   "line": "Sep 29 22:26:01 app-01 sshd[5836]: Accepted publickey for h.petrov from 10.0.0.5 port 55721 ssh2",
+   "step": 7
+  },
+  {
+   "line": "Sep 29 22:29:47 bastion-01 sshd[32734]: Invalid user support from 198.19.146.139 port 43024",
+   "step": null
+  },
+  {
+   "line": "Sep 29 22:42:01 bastion-01 sshd[35108]: Failed password for invalid user pi from 198.19.221.215 port 58240 ssh2",
+   "step": null
+  },
+  {
+   "line": "Sep 29 22:42:03 bastion-01 sshd[35130]: Connection closed by invalid user pi 198.19.221.215 port 34199 [preauth]",
+   "step": null
+  },
+  {
+   "line": "Sep 29 22:42:23 db-01 sshd[18690]: Accepted publickey for h.petrov from 10.0.1.20 port 50991 ssh2",
+   "step": 8
+  },
+  {
+   "line": "Sep 29 22:44:24 bastion-01 sshd[35565]: Invalid user ubuntu from 198.19.116.239 port 52504",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"df -h\",\"ts\":\"2026-09-29T23:19:46.146Z\",\"user\":\"m.costa\"}",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"bastion-01\",\"object\":\"journalctl -u app --since today\",\"ts\":\"2026-09-29T23:24:36.000Z\",\"user\":\"y.ogunbanjo\"}",
+   "step": null
+  },
+  {
+   "line": "{\"event\":\"exec\",\"host\":\"db-01\",\"object\":\"tar czf /tmp/.sys.tgz /var/lib/postgresql/dump\",\"ts\":\"2026-09-29T23:26:09.779Z\",\"user\":\"h.petrov\"}",
+   "step": 9
+  },
+  {
+   "line": "{\"bytes\":3478624640,\"event\":\"file_read\",\"host\":\"db-01\",\"object\":\"/var/lib/postgresql/dump\",\"ts\":\"2026-09-29T23:26:39.779Z\",\"user\":\"h.petrov\"}",
+   "step": null
+  },
+  {
+   "line": "2026-09-29T23:45:13Z,web-02,10.0.1.11,10.0.1.20,8080,tcp,1369844,586763,allowed",
+   "step": null
+  },
+  {
+   "line": "2026-09-29T23:45:13Z,app-01,10.0.1.20,10.0.1.30,5432,tcp,599382,593208,allowed",
+   "step": null
+  },
+  {
+   "line": "2026-09-29T23:47:22Z,db-01,10.0.1.30,198.19.76.39,443,tcp,248233961,31334,allowed",
+   "step": 10
+  },
+  {
+   "line": "2026-09-29T23:50:04Z,web-01,10.0.1.10,10.0.1.20,8080,tcp,4153985,4188413,allowed",
+   "step": null
+  }
+ ],
+ "proof": {
+  "attack_runs": 252,
+  "found": 252,
+  "clean_runs": 48,
+  "clean_flagged": 0,
+  "heldout_runs": 90,
+  "heldout_reconstructed": 0,
+  "heldout_watchlisted": 90
+ }
+}
