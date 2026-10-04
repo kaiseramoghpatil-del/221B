@@ -11,3 +11,5 @@ data/*.sqlite
 .env
 .DS_Store
 data/demo_case/
+build/
+*.egg-info/

@@ -50,7 +50,7 @@ export default function Intake({ onOpen }: { onOpen: (caseId: string) => void })
           <div className="flex flex-col bg-sheet p-6">
             <h3 className="w-semi text-[19px] font-[650]">Open the demo case</h3>
             <p className="mt-2 flex-1 text-slate">
-              Four days of logs from a 6-server company. About 49,000 events, five innocent look-alikes, and one intruder.
+              Four days of logs from a six-server company: tens of thousands of events, five innocent look-alikes, and one intruder.
             </p>
             <button
               type="button"
@@ -58,7 +58,7 @@ export default function Intake({ onOpen }: { onOpen: (caseId: string) => void })
               onClick={() => run("demo", () => api.createScenario(DEMO_SEED, { template: "T1" }))}
               className="mt-6 self-start rounded-[4px] bg-graphite px-4 py-2.5 font-[600] text-white transition-colors hover:bg-black disabled:opacity-60"
             >
-              {busy === "demo" ? "Analysing 49,000 events…" : "Open demo case"}
+              {busy === "demo" ? "Analysing the logs…" : "Open demo case"}
             </button>
           </div>
 

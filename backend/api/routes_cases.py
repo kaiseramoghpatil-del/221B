@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
@@ -16,6 +17,8 @@ from .deps import get_case, not_implemented, run_ingest
 
 router = APIRouter(prefix="/api", tags=["cases"])
 
+MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_MB", "40")) * 1024 * 1024
+
 
 def _views(rec: CaseRecord):
     if rec.views is None:
@@ -25,8 +28,11 @@ def _views(rec: CaseRecord):
 
 @router.post("/cases", response_model=CaseCreated)
 async def upload_case(files: list[UploadFile] = File(...), name: str | None = Query(default=None)) -> CaseCreated:
-    rec = STORE.create(name=name or (files[0].filename if files else "upload"), source=CaseSource.upload)
     payload = [(f.filename or "file", await f.read()) for f in files]
+    total = sum(len(b) for _, b in payload)
+    if total > MAX_UPLOAD_BYTES:
+        raise HTTPException(413, f"upload is {total // (1024 * 1024)} MB; this server accepts up to {MAX_UPLOAD_BYTES // (1024 * 1024)} MB per case")
+    rec = STORE.create(name=name or (files[0].filename if files else "upload"), source=CaseSource.upload)
     run_ingest(rec, payload)
     return CaseCreated(case_id=rec.case_id)
 

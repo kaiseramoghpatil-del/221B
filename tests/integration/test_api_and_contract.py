@@ -75,3 +75,15 @@ def test_truth_only_via_reveal_and_views_are_served():
 def test_scenario_params_are_capped_by_contract():
     r = client.post("/api/scenarios", json={"seed": 1, "params": {"ip_rotation": 999}})
     assert r.status_code == 422
+
+
+def test_identical_scenario_requests_share_one_case_and_store_is_bounded():
+    from backend.store.memory import CaseStore
+    from backend.core.models import CaseSource
+    body = {"seed": 77, "params": {"template": "T0", "scale": 0.05}}
+    a = client.post("/api/scenarios", json=body).json()["case_id"]
+    b = client.post("/api/scenarios", json=body).json()["case_id"]
+    assert a == b
+    store = CaseStore(limit=2)
+    ids = [store.create(f"c{i}", CaseSource.upload).case_id for i in range(3)]
+    assert store.get(ids[0]) is None and store.get(ids[2]) is not None

@@ -47,7 +47,7 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
         if (!live) return;
         setData({ summary, incidents: inc.incidents, suspects: sus.suspects, dismissals: dis.dismissals, naive: nv.alerts });
       })
-      .catch((e) => live && setError(e instanceof ApiError && e.status === 404 ? "This case no longer exists on the server (it restarted). Open a new one." : String(e.message ?? e)));
+      .catch((e) => live && setError(e instanceof ApiError && e.status === 404 ? "This case is no longer held by the server. Cases are kept in memory, so a restart or newer cases replace older ones. Open it again from the start page." : String(e.message ?? e)));
     return () => {
       live = false;
     };
