@@ -1,198 +1,157 @@
-# 221B
+<p align="center"><img src="docs/img/logo.svg" width="220" alt="221B logo"></p>
 
-**Find the intruder in your logs, and see the proof line by line.**
-ALGOTHON'26 · ALG-CYBER-01 "Find the Intruder"
+<h3 align="center">Forensic incident reconstruction from raw logs</h3>
 
-221B reads raw authentication, web, network and audit logs and turns tens of thousands of events into a single
-reconstructed attack: who got in, from where, how they moved, what they took. Every sentence of the verdict
-links to the exact log lines that prove it, and a built-in answer key lets anyone check the verdict against
-ground truth on cases nobody prepared in advance.
+<p align="center"><b>Find the intruder. Prove it.</b> 🔍</p>
 
-```
-Raw security events → suspicious signals → correlated entities → reconstructed attack sequence
-                    → identified intruder → evidence-backed explanation → live verification
-```
+<p align="center">
+  <a href="https://two21b.onrender.com"><img alt="Live demo" src="https://img.shields.io/badge/Live%20demo-two21b.onrender.com-E0283F"></a>
+  <img alt="ALGOTHON'26: ALG-CYBER-01" src="https://img.shields.io/badge/ALGOTHON'26-ALG--CYBER--01-1C2128">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
+  <img alt="API: FastAPI" src="https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white">
+  <img alt="UI: React 18 + TypeScript" src="https://img.shields.io/badge/UI-React%2018%20%2B%20TypeScript-61DAFB?logo=react&logoColor=black">
+  <img alt="Tests: 74 passing" src="https://img.shields.io/badge/tests-74%20passing-2EA44F">
+  <img alt="Benchmark: 252 of 252" src="https://img.shields.io/badge/benchmark-252%2F252%20intrusions%20found-2EA44F">
+</p>
+
+<p align="center">
+  🌐 <a href="https://two21b.onrender.com">Try it live</a> &nbsp;·&nbsp;
+  📊 <a href="docs/benchmark.md">Benchmark</a> &nbsp;·&nbsp;
+  🧪 <a href="docs/benchmark_heldout.md">Held-out test</a> &nbsp;·&nbsp;
+  📐 <a href="docs/SPEC.md">Spec</a> &nbsp;·&nbsp;
+  🎬 <a href="docs/DEMO.md">Demo script</a>
+</p>
 
 ---
 
-## The problem
+## 💡 What is 221B?
 
-Thousands of security events can hide an attacker among normal activity. Per-rule tools flag isolated events,
-and the loudest source usually wins attention. In practice the real intruder is often quiet. A stolen password
-used once at 3 a.m. looks unremarkable next to a bot hammering SSH all afternoon.
+Thousands of log lines can hide one attacker among normal activity. Most tools flag events one rule at a time, so the loudest source wins attention, while the real intruder is often quiet: one stolen password, used once.
 
-The bonus criterion asks for exactly this: *connect multiple events and explain the likely attack sequence
-instead of flagging isolated events only.*
+**221B reads raw logs and rebuilds the attack.** It tells you who got in, from where, how they moved and what they took. Every sentence of the verdict links to the exact log line that proves it.
 
-## The approach
+<p align="center"><img src="docs/img/case.png" width="900" alt="221B case view"></p>
+<p align="center"><sub>The demo case: 48,753 log lines narrowed to 1 incident, with the attacker's path through three servers.</sub></p>
 
-1. **Ingest anything readable.** Linux `auth.log` (sshd, sudo, su, useradd, usermod), nginx/Apache access logs,
-   and generic CSV / JSON-lines with an ECS-style alias map. Every line becomes an event, an explained skip, or a
-   quarantined row with a reason. Nothing is silently dropped.
-2. **Normalize.** Stable event IDs, duplicate collapse, an IP→host map learned from flow logs, and SSH sessions
-   stitched together with their hop lineage (bastion → app → db).
-3. **Detect** with 11 deterministic, explainable detectors (brute force, spray, success-after-failures,
-   new-source login, privilege escalation, recon commands, internal scanning, lateral movement, staging,
-   exfiltration, persistence). Each declares Sigma-style metadata (level, ATT&CK tags, known false positives)
-   and the **predicates it requires and produces** (`has_access(user, host)`, `privileged`, `staged`, …).
-4. **Correlate by prerequisites, not by time.** A signal is linked to an earlier one only when the earlier one
-   established what the later one needed (the Ning–Cui–Reeves prerequisite/consequence model). Consequences only
-   propagate when prerequisites hold, so an engineer's routine hop never hands "attacker access" to anything.
-   When a prerequisite is missing from the logs, 221B records a **gap** instead of hiding it.
-5. **Admit incidents strictly.** An incident requires **at least two distinct attack stages connected by
-   correlation predicates**. Everything else is a Watchlist item, or explained and cleared.
-6. **Explain.** Deterministic, template-based claims, each citing its evidence. The system also says what
-   looked suspicious and why it is *not* the intruder (a loud brute-forcer that never got in, a nightly scanner,
-   a recurring backup).
-7. **Verify.** Generated scenarios keep their ground truth hidden; "Reveal the answer key" scores the verdict.
-   A benchmark sweep compares 221B against two baselines on the same detector output.
+## 🎯 Why it matters
 
-No LLM is involved in detection, correlation, scoring or explanation.
+- 🔊 **Loud is not dangerous.** A bot hammering SSH all afternoon never got in. 221B says so, and shows why.
+- 🔗 **Steps, not alerts.** It links two events only when the first made the second possible, never just because they happened close together.
+- 🧾 **Proof, not vibes.** No LLM in detection, linking, scoring or explanation. Every claim cites a `file:line`.
+- ✅ **Checkable.** Generate a case nobody has seen, get the verdict, then reveal the hidden answer key.
 
-## What you see
+## 🗺️ How it works
 
-- **Verdict:** one sentence, for example "h.petrov's account was taken over from 198.19.76.39 and used to reach db-01; 3.6 GB left for the same address." It sits above a facts box (got in, active for, hosts reached, data out, confidence).
-- **Evidence funnel:** 48,753 events › 141 detector hits › 11 linked › 1 incident.
-- **Exhibit A, attack path:** places (rows) × stages (columns) with a replayable thread through the attacker's steps.
-- **Exhibit B, session timeline:** a waterfall on a real clock, with hops nested under their parent session and deleted-log stretches hatched.
-- **Exhibit C, "Looked suspicious, but isn't the intruder":** each decoy cleared with evidence.
-- **Findings:** numbered steps. Each opens an evidence drawer with the rule card and the raw `file:line` source lines in context.
-- **Isolated alerts view:** the same detector output as a per-rule console would show it, for contrast.
-- **Answer key:** for generated cases, truth against verdict, plus the three-way baseline comparison.
-- **How it was tested** (`/?page=verify`): the benchmark, with every imperfection reproducible by seed.
+```mermaid
+flowchart LR
+    L["📂 Raw logs<br/>auth.log · nginx · CSV · JSONL"] --> I["🧹 Ingest<br/>parse · quarantine bad lines"]
+    I --> N["🧭 Normalize<br/>sessions · hops · ip→host"]
+    N --> D["🚨 Detect<br/>11 rules + baselines"]
+    D --> C["🔗 Correlate<br/>link only when one step<br/>enabled the next"]
+    C --> R["🧩 Reconstruct<br/>≥ 2 linked stages = incident"]
+    R --> E["🧾 Explain<br/>verdict · evidence · cleared suspects"]
+```
 
-## Results (benchmark of 300 generated cases)
+**What the engine produces for the demo case:**
 
-`python -m eval.sweep --seeds 1..300` → `docs/benchmark.md`, `docs/benchmark.json`
+| 48,753 | › | 141 | › | 11 | › | **1** |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| log events | | detector signals | | linked by cause | | **incident** |
 
-| | Value |
+## 📸 A look inside
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/img/start.png" alt="Start screen"><br><sub><b>Start.</b> A 3-second replay of the demo case's real results, and a guided tour.</sub></td>
+    <td width="50%"><img src="docs/img/evidence.png" alt="Evidence drawer"><br><sub><b>Evidence.</b> Every finding opens the raw log lines and the rule that fired.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/img/alerts.png" alt="Isolated alerts"><br><sub><b>Isolated alerts.</b> The same output as a plain rule console shows it, for contrast.</sub></td>
+    <td width="50%"><img src="docs/img/verify.png" alt="How it was tested"><br><sub><b>How it was tested.</b> 300 generated cases, plus a held-out test.</sub></td>
+  </tr>
+</table>
+
+## 📊 Results
+
+Benchmark of 300 generated cases, scored against a hidden answer key ([full report](docs/benchmark.md)):
+
+| | Result |
 |---|---|
-| Intruder's account found inside an incident | 252 / 252 |
-| Exact entry IP named | 252 / 252 |
-| Clean weeks wrongly reported as an intrusion | 0 / 48 |
+| Intrusions found, with the right account | **252 / 252** |
+| Exact entry IP named | **252 / 252** |
+| Clean weeks wrongly flagged | **0 / 48** |
 | Attack stages recovered / in the right order | 96% / 99.7% |
-| Incident signals that are real attack (purity) | 98% |
-| Deliberately deleted log stretches flagged | 91% |
+| Deleted log stretches flagged | 91% |
 
-| Same detector output read as… | Items to review per case | Attack stages in the best item |
+| Same detector output, read as… | Items to review per case | Attack stages in the best item |
 |---|---|---|
 | every hit is an alert | 25.6 | one per alert |
 | hits grouped by time (30 min) | 16.2 | 47% |
 | **221B incidents** | **0.85** | **96%** |
 
-> **Read this honestly.** The detectors were developed against this same scenario generator. These numbers show
-> consistency and robustness to the difficulty knobs (stealth, 1–40 rotating IPs, 10–30% log loss, clock skew,
-> duplicated, shuffled and corrupted lines). They are **not** a real-world accuracy figure.
+> [!NOTE]
+> The detectors were built against this same scenario generator, so these numbers show consistency and robustness (stealth, 1 to 40 rotating IPs, 10 to 30% log loss, clock skew, corrupted lines), not real-world accuracy.
 
-### Held-out test (run once, after the engine was frozen)
+**Held-out test, run once after the engine was frozen** ([report](docs/benchmark_heldout.md)): an insider stealing data with their own account. 221B reconstructed **0 / 90** as an incident, but put **90 / 90** on the high-priority watchlist with the right account or destination. That is the design's blind spot, and we left it unfixed so the number stays honest.
 
-`python -m eval.sweep --seeds 1001..1090 --templates T3 --name benchmark_heldout` → `docs/benchmark_heldout.md`
+## ⚙️ Project specifications
 
-A new attack template (T3, an insider stealing data with their own account in normal hours, with no break-in) was
-written after the detection engine was frozen and evaluated once, unchanged:
-
-| | Value |
+| | |
 |---|---|
-| Reconstructed as an incident | **0 / 90** |
-| Theft surfaced as a high-priority Watchlist item naming the right account or destination | 90 / 90 |
-| Attack stages in the best unit: time-window grouping vs 221B | 65% vs 1% |
+| **Inputs** | Linux `auth.log` (sshd, sudo, su, useradd, usermod), nginx/Apache access logs, CSV and JSON-lines with an ECS-style field map |
+| **Detection** | 11 deterministic rules with Sigma-style metadata and MITRE ATT&CK tags, plus first-seen baselines |
+| **Correlation** | Prerequisite/consequence linking (Ning, Cui & Reeves, CCS 2002); an incident needs at least 2 linked stages |
+| **Outputs** | Verdict, attack path, session timeline, evidence-cited findings, cleared suspects, answer key |
+| **Engine** | Pure Python standard library, deterministic, about 5 s per 50k-line case |
+| **Stack** | FastAPI · Pydantic v2 · React 18 + TypeScript + Vite · Tailwind v4 · Docker |
+| **Quality** | 74 tests: parsers, property tests, generator round trip, correlation rules, API contract |
 
-This is the design's blind spot. 221B links steps only when one established what the next needed; with no
-break-in nothing establishes attacker access, so the steps stay single-stage findings. The next fix (an
-"insider anchor": first-ever access to a sensitive host followed by bulk data access in the same session) has
-deliberately **not** been added, so this stays a real held-out number.
+## 🚀 How to run
 
-## Run it
+**Easiest:** open the [live demo](https://two21b.onrender.com). It runs on a free instance, so the first visit can take a minute to wake up.
 
-Requirements: Python 3.11+, Node 20+.
+**Locally on Windows:** double-click `run.bat`. It installs, builds and opens http://localhost:8221.
+
+**Locally anywhere** (Python 3.11+, Node 20+):
 
 ```bash
-cd 221b
 pip install -e ".[dev]"
-cd frontend && npm ci && npm run build && cd ..        # builds the UI into frontend/dist
-python -m uvicorn backend.api.app:app --port 8221       # API + UI on http://localhost:8221
+cd frontend && npm ci && npm run build && cd ..
+python -m uvicorn backend.api.app:app --port 8221     # open http://localhost:8221
 ```
 
-Development: `cd frontend && npm run dev` (Vite on :5173, proxies `/api` to :8221).
-
-Other commands:
+<details>
+<summary><b>More commands</b></summary>
 
 ```bash
-python -m pytest                                   # 73 tests
-python -m sim.cli --seed 1 --template T1 --out data/demo_case   # write a scenario's raw logs + truth.json to disk
-python -m eval.sweep --seeds 1..300                # benchmark (about 4 min on 8 cores)
-python scripts/export_contract.py                  # regenerate contract/openapi.json after a deliberate contract change
+python -m pytest                                                 # run the tests
+cd frontend && npm run dev                                       # UI dev server on :5173
+python -m sim.cli --seed 1 --template T1 --out data/demo_case    # write a scenario's raw logs to disk
+python -m eval.sweep --seeds 1..300                              # rerun the benchmark
+python -m eval.demo_snapshot                                     # refresh the start screen's demo replay
 ```
+</details>
 
-Try it in the UI: **Open demo case** (seed 1), or **Generate a case nobody has seen** with any number, then
-**Reveal the answer key**. **Investigate your own logs** accepts auth.log / access logs / CSV / JSONL.
+## 🧪 What to try
 
-## Architecture
+1. **Open demo case.** Read the verdict, press **Replay the attack**, click any step to see its log lines.
+2. **Generate a scenario** with any number. Pick the attack type and stealth, then click **Reveal the answer key**.
+3. **Upload logs.** Try the files in `data/demo_case/` after running the `sim.cli` command above.
 
-```
- uploaded logs ─┐                        ┌─ sim/ generator (seed, knobs) ──► truth.json (hidden)
-                ▼                        ▼  raw-format files only, no shared types
- INGEST  format sniffing · parsers · quarantine · parse report                      (backend/ingest)
- NORMALIZE  order · dedupe · ip→host · sessions + hop lineage                       (backend/normalize)
- BASELINE  first-seen history · warm-up · prior-login hour profile                  (backend/baseline)
- DETECT  D01–D11 · Sigma-style metadata · requires / produces predicates            (backend/detect)
- CORRELATE  predicate forward-chaining · gap bridges · ≥2-stage admission           (backend/correlate)
- RECONSTRUCT  steps · scenario-template titles · entry hypotheses · attack graph    (backend/reconstruct)
- EXPLAIN  evidence-cited claims · dismissals · caveats                              (backend/explain)
-                ▼
- FastAPI (contract v1.0.0, contract/openapi.json)  ──►  React UI (frontend/)
-                ▼
- REVEAL / BENCHMARK  verdict vs hidden truth · B0 / B1 baselines                    (eval/)
-```
+## 🧭 Honest limits
 
-Key decisions and their reasons are in `docs/SPEC.md`; the research behind them is in `docs/RESEARCH.md`; the
-UI rationale is in `docs/DESIGN.md`. A test enforces that the pipeline never imports the generator.
+- **Insider theft** is surfaced on the watchlist but not reconstructed as an incident (0 / 90 held out).
+- **Single-step intruders** who log in and do nothing else stay on the watchlist.
+- **Known false positive:** an admin at an odd hour, from a new network, touching new hosts (3 of 300 cases).
+- **No Windows EVTX parser yet.** Cases live in memory, so a restart forgets them.
 
-**Stack:** Python (standard library only in the engine), FastAPI, Pydantic v2, pytest + Hypothesis; React 18, Vite,
-TypeScript, Tailwind CSS v4; Archivo and JetBrains Mono fonts (bundled via Fontsource). In-memory case store.
+## 🙏 Credits and disclosure
 
-## Testing
+221B reimplements published ideas; no third-party security code or rule text is included. Ideas from Ning, Cui & Reeves (prerequisite correlation), Microsoft Sentinel Fusion (multistage incidents), Splunk ES (risk-based alerting), Sigma, Timesketch, Chainsaw, Jaeger, Elastic Common Schema and CTID Attack Flow. MITRE ATT&CK® names © The MITRE Corporation.
 
-73 tests:
-- **Parsers:** golden lines for every parser, including awkward real-world lines.
-- **Generator round trip:** every ground-truth line must parse into the right kind of event, under duplicates, shuffling, corruption, clock skew and log loss.
-- **Property tests:** ingest never crashes and accounts for every line; normalize and the full pipeline are order-invariant.
-- **Correlation:** no-bypass admission, session scoping, weak anchors, gap bridges, the ambiguity guard.
-- **End to end:** detection on T1/T2/clean scenarios, API, contract freeze, and the benchmark harness itself.
+- **AI assistance:** built with Claude Code for design, code, tests and docs. The team directed and reviewed the work.
+- **Data:** fully synthetic, from this repo's own generator (`sim/`). No external APIs at runtime.
 
-The property tests found two real bugs during development, now fixed: blank-line accounting, and a parser crash on non-numeric byte counts.
+More detail: [SPEC](docs/SPEC.md) · [RESEARCH](docs/RESEARCH.md) · [DESIGN](docs/DESIGN.md)
 
-## Prior art and credits
-
-221B reimplements published ideas; no third-party security code or rule text is included.
-
-- **Correlation model:** prerequisite/consequence alert correlation (Ning, Cui & Reeves, ACM CCS 2002).
-- **Incident admission:** two or more stages, after Microsoft Sentinel Fusion's multistage incidents.
-- **Risk ledger:** per-entity risk aggregation with distinct-tactic counting, after Splunk ES risk-based alerting.
-- **Entity-pivot alert grouping and time-only baseline:** *Graph-Based Alert Contextualisation in SOCs* (arXiv 2509.12923).
-- **Rule metadata:** Sigma rule format (SigmaHQ).
-- **Forensic timeline:** Timesketch.
-- **Event-log gap analysis:** Chainsaw.
-- **Session waterfall:** Jaeger / OpenTelemetry trace views.
-- **Event vocabulary:** Elastic Common Schema and OCSF.
-- **Attack-sequence modelling:** CTID Attack Flow.
-
-MITRE ATT&CK® tactic and technique names: © 2026 The MITRE Corporation. This work is reproduced and distributed
-with the permission of The MITRE Corporation.
-
-## AI assistance and data disclosure
-
-- **AI assistance:** built during the event with AI coding assistance (Claude Code), used for design, implementation, tests and documentation. The team reviewed and directed the work and is responsible for it.
-- **Data:** all scenario data is synthetic, produced by this repository's own generator (`sim/`). No third-party dataset is included or required.
-- **External APIs:** none at runtime.
-- **Third-party packages:** the open-source libraries listed in `pyproject.toml` and `frontend/package.json`, under their own licenses.
-
-## Limitations and future work
-
-- **Insider misuse is not reconstructed.** On the held-out insider template, 0 of 90 thefts became an incident, though all 90 reached the high-priority Watchlist. All benchmark data, including the held-out template, comes from our own generator; labelled public data is the next step.
-- **Single-stage blind spots by design.** An intruder who does only one thing (for example a valid-password login during normal hours followed by nothing suspicious) stays on the Watchlist or is cleared. A stolen-credential login during the victim's normal hours becomes an anchor only if a strong signal follows in that same session.
-- **Known false-positive shape.** An administrator logging in at an odd hour from a new network and touching hosts for the first time can form an extra incident: 3 of 300 benchmark cases.
-- **Concurrent sessions.** When the victim and the intruder use the same account on the same host at the same time, audit activity cannot be attributed to a session; 221B leaves it unattributed rather than guessing (1 of 300 cases still names an innocent address).
-- **Baseline assumptions.** "Never seen" means never seen earlier in the supplied logs, after a 12-hour warm-up. Short captures get a weaker baseline, and the UI says so.
-- **Formats.** No Windows EVTX parser yet. Year-less syslog timestamps borrow the year from other files (flagged on every affected event).
-- **Storage.** The case store is in memory; restarting the server forgets cases.
+<p align="center"><sub>Built for <b>ALGOTHON'26</b>, ALG-CYBER-01 "Find the Intruder" · 221B Baker Street sends its regards</sub></p>
