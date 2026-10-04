@@ -9,6 +9,7 @@ from backend.core.models import (CaseSource, CaseStatus, CaseSummary, Funnel, Gr
                                  ScenarioParams)
 from backend.core.ids import PIPELINE_VERSION
 from backend.ingest import IngestResult
+from typing import Any
 
 
 @dataclass
@@ -23,12 +24,15 @@ class CaseRecord:
     scenario_params: ScenarioParams | None = None
     error: str | None = None
     progress: list[ProgressEvent] = field(default_factory=list)
+    analysis: Any = None  # backend.pipeline.Analysis
+    views: Any = None  # backend.views.CaseViews
 
     def summary(self) -> CaseSummary:
         n = len(self.ingest.events) if self.ingest else 0
+        funnel = self.views.funnel if self.views is not None else Funnel(events=n)
         return CaseSummary(
             case_id=self.case_id, name=self.name, source=self.source, status=self.status, pipeline_version=PIPELINE_VERSION,
-            scenario_seed=self.scenario_seed, scenario_params=self.scenario_params, funnel=Funnel(events=n),
+            scenario_seed=self.scenario_seed, scenario_params=self.scenario_params, funnel=funnel,
             parse_report=self.ingest.report if self.ingest else None, error=self.error,
         )
 

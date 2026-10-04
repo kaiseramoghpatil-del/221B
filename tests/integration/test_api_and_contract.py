@@ -47,14 +47,28 @@ def test_upload_roundtrip_with_unknown_file_is_visible_not_silent():
     r = client.post("/api/cases", files=[("files", ("auth.log", line.encode())), ("files", ("junk.bin", b"hello\nworld\n"))])
     cid = r.json()["case_id"]
     s = client.get(f"/api/cases/{cid}/summary").json()
-    assert s["funnel"]["events"] == 3 and s["parse_report"]["lines_quarantined"] == 2
+    # 3 identical adjacent lines: all parsed, then collapsed as forwarder duplicates by normalize
+    assert s["parse_report"]["events_total"] == 3 and s["funnel"]["events"] == 1
+    assert s["parse_report"]["lines_quarantined"] == 2
 
 
-def test_truth_is_not_leaked_and_pending_endpoints_declare_501():
-    cid = client.post("/api/scenarios", json={"seed": 1, "params": {"scale": 0.05}}).json()["case_id"]
-    assert "truth" not in json.dumps(client.get(f"/api/cases/{cid}/summary").json()).lower()
-    assert client.get(f"/api/cases/{cid}/incidents").status_code == 501
-    assert client.post(f"/api/cases/{cid}/reveal").status_code == 501
+def test_truth_only_via_reveal_and_views_are_served():
+    cid = client.post("/api/scenarios", json={"seed": 21, "params": {"scale": 0.3}}).json()["case_id"]
+    summ = client.get(f"/api/cases/{cid}/summary").json()
+    assert "truth" not in json.dumps(summ).lower() and summ["funnel"]["incidents"] == 1
+    incs = client.get(f"/api/cases/{cid}/incidents", params={"status": "incident"}).json()["incidents"]
+    iid = incs[0]["id"]
+    detail = client.get(f"/api/cases/{cid}/incidents/{iid}").json()
+    event_ids = {e for cl in detail["claims"] for e in [r["event_id"] for r in cl["evidence"]]}
+    assert all(cl["evidence"] for cl in detail["claims"]), "every claim cites evidence"
+    for eid in list(event_ids)[:5]:
+        assert client.get(f"/api/cases/{cid}/events/{eid}").status_code == 200
+    graph = client.get(f"/api/cases/{cid}/incidents/{iid}/replay").json()
+    node_ids = {n["id"] for n in graph["nodes"]}
+    assert graph["edges"] and all(e["source"] in node_ids and e["target"] in node_ids for e in graph["edges"])
+    assert client.get(f"/api/cases/{cid}/suspects").json()["suspects"]
+    rv = client.post(f"/api/cases/{cid}/reveal").json()
+    assert rv["truth"]["compromised_users"] and rv["scorecard"]["compromised_user_recall"] == 1.0
     assert client.get("/api/cases/nope/summary").status_code == 404
 
 

@@ -57,6 +57,7 @@ class Correlation:
     active_signals: set[str] = field(default_factory=set)  # signals whose consequences became attacker-held
     gaps_by_signal: dict[str, Gap] = field(default_factory=dict)
     ambiguous: dict[str, list[str]] = field(default_factory=dict)  # signal id -> candidate accounts it could belong to
+    kappas: dict[str, dict[str, float]] = field(default_factory=dict)  # incident/watchlist id -> signal id -> consequence factor
 
 
 class _UF:
@@ -201,6 +202,7 @@ def correlate(signals: list[Signal], sessions_end: dict[str, object]) -> Correla
     watch: list[Incident] = []
     low: list[str] = []
     component_of: dict[str, str] = {}
+    kappa_by_inc: dict[str, dict[str, float]] = {}
     for root, members in comps.items():
         pred_groups: dict[str, set[Stage]] = defaultdict(set)
         for m in members:
@@ -234,10 +236,11 @@ def correlate(signals: list[Signal], sessions_end: dict[str, object]) -> Correla
             watch.append(inc)
         for m in members:
             component_of[m.id] = iid
+        kappa_by_inc[iid] = kappas
     incidents.sort(key=lambda i: -i.score)
     watch.sort(key=lambda i: (i.watchlist_priority != WatchlistPriority.high, -i.score))
     return Correlation(links=links, incidents=incidents, watchlist=watch, low_signal=low, component_of=component_of,
-                       active_signals=active, gaps_by_signal=gaps, ambiguous=ambiguous)
+                       active_signals=active, gaps_by_signal=gaps, ambiguous=ambiguous, kappas=kappa_by_inc)
 
 
 def _activate(s: Signal, active: set, chain_identity: dict, recon: list[Signal], links: list[Link]) -> None:

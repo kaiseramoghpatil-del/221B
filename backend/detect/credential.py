@@ -192,8 +192,11 @@ def _d03(ctx: DetectCtx):
         out.append(mk_signal(
             D03, e.id, [e], context_events=basis[-30:], entities=[f"user:{e.user}", f"ip:{e.src_ip}", f"host:{e.host}"],
             severity=0.75, confidence=0.85, rarity=0.8, crit=ctx.crit(e.host),
-            template="{user} logged in to {host} from {ip} after {n_user} failures against the account and {n_ip} failures from that IP",
-            params={"user": e.user, "host": e.host, "ip": e.src_ip, "n_user": len(uf), "n_ip": len(ipf)},
+            template="{user} logged in to {host} from {ip}, {why}",
+            params={"user": e.user, "host": e.host, "ip": e.src_ip, "n_user": len(uf), "n_ip": len(ipf),
+                    "why": (f"right after {len(uf)} failed attempts against this account" if len(uf) >= 5 and len(ipf) < 5 else
+                            f"the same IP that had just made {len(ipf)} failed login attempts" if len(uf) < 5 else
+                            f"after {len(uf)} failed attempts against the account ({len(ipf)} from this IP)")},
             produces=[P(PN.credential_compromised, e.ts_utc, user=e.user),
                       P(PN.has_access, e.ts_utc, user=e.user, host=e.host, session=sess, via=e.src_ip)],
             features={"anchor": True, "login_event": e.id, "session": sess, "src_ip": e.src_ip, "failures_user": len(uf), "failures_ip": len(ipf),

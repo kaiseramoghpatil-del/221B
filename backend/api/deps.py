@@ -4,6 +4,8 @@ from fastapi import HTTPException
 
 from backend.core.models import CaseSource, CaseStatus, ProgressEvent
 from backend.ingest import IngestContext, ingest_files
+from backend.pipeline import analyze
+from backend.views import build_views
 from backend.store.memory import STORE, CaseRecord
 
 
@@ -25,7 +27,15 @@ def run_ingest(rec: CaseRecord, files: list[tuple[str, bytes]], assume_year: int
         n = len(rec.ingest.events)
         rec.progress.append(ProgressEvent(case_id=rec.case_id, stage="ingest",
                                           counts={"events": n, "quarantined": rec.ingest.report.lines_quarantined}))
-        # downstream stages (normalize..explain) plug in here; until then the case is 'ready' with a funnel of events only
+        rec.status = CaseStatus.analyzing
+
+        def on_progress(stage: str, counts: dict) -> None:
+            rec.progress.append(ProgressEvent(case_id=rec.case_id, stage=stage, counts=counts))
+
+        rec.analysis = analyze(rec.ingest, progress=on_progress)
+        rec.views = build_views(rec.analysis)
+        rec.progress.append(ProgressEvent(case_id=rec.case_id, stage="explain",
+                                          counts={"incidents": len(rec.views.incidents), "watchlist": len(rec.views.watchlist)}))
         rec.status = CaseStatus.ready
         rec.progress.append(ProgressEvent(case_id=rec.case_id, stage="done", counts={"events": n}))
     except Exception as exc:  # surface, never crash the server
