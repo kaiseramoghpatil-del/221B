@@ -107,3 +107,16 @@ def test_recon_linked_to_the_access_it_enabled():
     spray = sig("R", "D02", Stage.RECON, -60, ents=["ip:198.18.9.9"], sev=0.5, src_ips=["198.18.9.9"], valid_users_targeted=["bob"])
     c = correlate([spray, anchor()], ENDS)
     assert len(c.incidents) == 1 and set(c.incidents[0].signal_ids) == {"R", "A"}
+
+
+def test_host_level_requirement_is_not_guessed_when_several_accounts_hold_access():
+    """A network sweep from bastion-01 while two different accounts are 'held' there must not be pinned on either."""
+    other = sig("O", "D04", Stage.INITIAL_ACCESS, 2, ents=["user:carol", "ip:198.18.7.7", "host:bastion-01"], sev=0.55,
+                prod=[P(PN.has_access, 2, user="carol", host="bastion-01", session="S9")], anchor=True)
+    scan = sig("N", "D07", Stage.DISCOVERY, 5, ents=["host:bastion-01"], sev=0.5,
+               req=[P(PN.has_access, 5, host="bastion-01")], prod=[P(PN.discovered, 5, src="bastion-01")])
+    c = correlate([anchor(), other, scan], ENDS)
+    assert not c.incidents and c.ambiguous["N"] == ["alice", "carol"]
+    # with a single holder it links normally
+    c2 = correlate([anchor(), scan], ENDS)
+    assert len(c2.incidents) == 1

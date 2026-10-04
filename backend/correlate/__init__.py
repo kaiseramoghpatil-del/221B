@@ -56,6 +56,7 @@ class Correlation:
     component_of: dict[str, str]  # signal id -> incident/watchlist id
     active_signals: set[str] = field(default_factory=set)  # signals whose consequences became attacker-held
     gaps_by_signal: dict[str, Gap] = field(default_factory=dict)
+    ambiguous: dict[str, list[str]] = field(default_factory=dict)  # signal id -> candidate accounts it could belong to
 
 
 class _UF:
@@ -107,18 +108,40 @@ def correlate(signals: list[Signal], sessions_end: dict[str, object]) -> Correla
     gaps: dict[str, Gap] = {}
     chain_identity: dict[str, list[tuple[object, str]]] = defaultdict(list)  # identity -> [(t, signal id)] of active signals
     recon: list[Signal] = [s for s in sigs if s.stage_hint is Stage.RECON]
+    ambiguous: dict[str, list[str]] = {}
+    running = _UF([s.id for s in sigs])  # chains as they form, for disambiguating host-only requirements
+    size: dict[str, int] = defaultdict(lambda: 1)
+
+    def chain_size(sid: str) -> int:
+        return size[running.find(sid)]
+
+    def absorb(new_links: list[Link]) -> None:
+        for l in new_links:
+            ra, rb = running.find(l.signal_a), running.find(l.signal_b)
+            if ra != rb:
+                total = size[ra] + size[rb]
+                running.union(ra, rb)
+                size[running.find(l.signal_a)] = total
 
     for s in sigs:
         satisfied = False
         strong = strength(s) >= WEAK_ANCHOR_CONFIRM and not s.features.get("informational")
         for req in s.requires:
-            cands = [h for h in held if _matches(h, req, s.t_start, sessions_end) and (not h.weak or strong)]
+            every = [h for h in held if _matches(h, req, s.t_start, sessions_end)]
+            cands = [h for h in every if not h.weak or strong]
             if not cands:
                 continue
-            best = max(cands, key=lambda h: (h.inst.t or s.t_start, not h.inferred))
+            if "user" not in req.args and len({h.inst.args.get("user") for h in every}) > 1:
+                # host-level requirement (e.g. a network sweep from bastion-01) while several accounts hold access
+                # there: genuinely ambiguous - do not guess which chain it belongs to
+                ambiguous.setdefault(s.id, sorted({str(h.inst.args.get("user")) for h in every}))
+                continue
+            # several chains may hold e.g. has_access(host=bastion-01): prefer the most developed chain, then recency
+            best = max(cands, key=lambda h: (chain_size(h.signal_id), not h.inferred, h.inst.t or s.t_start))
             if best.signal_id == s.id:
                 continue
             satisfied = True
+            n0 = len(links)
             if best.weak:  # retroactive confirmation of a weak anchor
                 for h in held:
                     if h.signal_id == best.signal_id:
@@ -126,6 +149,7 @@ def correlate(signals: list[Signal], sessions_end: dict[str, object]) -> Correla
                 _activate(by_id[best.signal_id], active, chain_identity, recon, links)
             links.append(Link(signal_a=best.signal_id, signal_b=s.id, kind=LinkKind.predicate, via=best.inst,
                               reason=f"{req.name.value} established by {by_id[best.signal_id].detector}", weight=1.0))
+            absorb(links[n0:])
         anchor = bool(s.features.get("anchor"))
         weak_anchor = bool(s.features.get("weak_anchor"))
         bridged = False
@@ -153,7 +177,9 @@ def correlate(signals: list[Signal], sessions_end: dict[str, object]) -> Correla
                 held.append(Held(inst=p, signal_id=s.id, inferred=bridged and not satisfied, valid_until=until,
                                  weak=weak_anchor and not (anchor or satisfied or bridged)))
             if anchor or satisfied or bridged:
+                n0 = len(links)
                 _activate(s, active, chain_identity, recon, links)
+                absorb(links[n0:])
 
     # ---- clustering: predicate links + inferred gap bridges; admission uses predicate links only
     ids = [s.id for s in sigs]
@@ -211,7 +237,7 @@ def correlate(signals: list[Signal], sessions_end: dict[str, object]) -> Correla
     incidents.sort(key=lambda i: -i.score)
     watch.sort(key=lambda i: (i.watchlist_priority != WatchlistPriority.high, -i.score))
     return Correlation(links=links, incidents=incidents, watchlist=watch, low_signal=low, component_of=component_of,
-                       active_signals=active, gaps_by_signal=gaps)
+                       active_signals=active, gaps_by_signal=gaps, ambiguous=ambiguous)
 
 
 def _activate(s: Signal, active: set, chain_identity: dict, recon: list[Signal], links: list[Link]) -> None:
