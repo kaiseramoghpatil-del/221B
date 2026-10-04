@@ -1,17 +1,102 @@
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
 @import "tailwindcss";
 
-/* 221B design tokens: forensic dossier. One signal colour, reserved for the compromise path. */
-:root {
-  --ink: #0e0f12;
-  --ink-2: #16181d;
-  --ink-3: #1f222a;
-  --line: #2a2e38;
-  --paper: #ece6d8;
-  --paper-dim: #a9a597;
-  --signal: #e8512f;
-  --ok: #7fae8c;
+/* 221B tokens — see docs/DESIGN.md. Crimson is reserved for the attacker's path. */
+@theme {
+  --color-paper: #f6f7f8;
+  --color-sheet: #ffffff;
+  --color-graphite: #1c2128;
+  --color-slate: #5b6573;
+  --color-mist: #8a94a2;
+  --color-rule: #dce0e5;
+  --color-rule-soft: #eceff2;
+  --color-breach: #b4152b;
+  --color-breach-soft: #f8e7ea;
+  --color-watch: #9a6100;
+  --color-watch-soft: #fbf1df;
+  --color-cleared: #2f7d6d;
+  --color-cleared-soft: #e3f1ed;
+  --font-sans: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 }
-html, body, #root { height: 100%; }
-body { background: var(--ink); color: var(--paper); font-family: Inter, system-ui, sans-serif; }
-.mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
-.serif { font-family: "Newsreader", Georgia, serif; }
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-graphite);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input,
+select {
+  touch-action: manipulation;
+}
+
+/* width axis = the expressive tool */
+.w-cond {
+  font-stretch: 75%;
+}
+.w-semi {
+  font-stretch: 87%;
+}
+.nums {
+  font-variant-numeric: tabular-nums;
+}
+.balance {
+  text-wrap: balance;
+}
+.pretty {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-graphite);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -40px;
+  background: var(--color-graphite);
+  color: white;
+  padding: 6px 10px;
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* thin, quiet scrollbars inside panels */
+.scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rule) transparent;
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

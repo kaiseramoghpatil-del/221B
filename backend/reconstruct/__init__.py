@@ -15,6 +15,8 @@ from backend.normalize import NormalizedCase, is_internal
 
 # Declarative scenario templates (Fusion-style "A following B"): ordered stage requirements -> title.
 TEMPLATES: list[tuple[str, str, list[Stage], set[str]]] = [
+    ("spray_then_valid_login_exfil", "Password spray → valid-password login → lateral movement → data exfiltration",
+     [Stage.RECON, Stage.INITIAL_ACCESS, Stage.LATERAL_MOVEMENT, Stage.EXFILTRATION], {"SPRAY_THEN_VALID"}),
     ("stolen_credential_exfil", "Stolen credential → lateral movement → data exfiltration",
      [Stage.INITIAL_ACCESS, Stage.LATERAL_MOVEMENT, Stage.EXFILTRATION], {"D04"}),
     ("bruteforce_exfil", "Password guessing → break-in → lateral movement → data exfiltration",
@@ -49,6 +51,9 @@ def match_template(signals: list[Signal]) -> tuple[str | None, str]:
     ordered = sorted(signals, key=lambda s: s.t_start)
     stages = [s.stage_hint for s in ordered]
     dets = {s.detector for s in ordered}
+    entries = [s for s in ordered if s.stage_hint is Stage.INITIAL_ACCESS]
+    if entries and all(int(s.features.get("failures_user", 0) or 0) < 5 for s in entries if s.detector == "D03")             and any(s.stage_hint is Stage.RECON for s in ordered):
+        dets = dets | {"SPRAY_THEN_VALID"}  # the IP sprayed other accounts, then logged in to one it never guessed
     for sid, title, need, needs_det in TEMPLATES:
         it = iter(stages)
         if all(any(x == st for x in it) for st in need) and (not needs_det or needs_det & dets):
@@ -106,7 +111,10 @@ def entry_hypotheses(inc: Incident, sigs: dict[str, Signal], corr: Correlation) 
         weight = sum(strength(s) for s in group) * (1 + sum(out_deg[s.id] for s in group))
         p = lead.explanation_params
         dets = {s.detector for s in group}
-        how = "password guessing that succeeded" if "D03" in dets else "a valid password used from a network never seen for this account"
+        lead_fu = max(int(s.features.get("failures_user", 0) or 0) for s in group)
+        how = ("a valid password, from an IP that had been spraying other accounts" if "D03" in dets and lead_fu < 5 else
+               "password guessing against this account that succeeded" if "D03" in dets else
+               "a valid password used from a network never seen for this account")
         raw.append((weight, Hypothesis(id=short("H", inc.id, key), description=f"{p.get('user')} entered {p.get('host')} from {p.get('ip')} via {how}",
                                        signal_ids=[s.id for s in group], probability=0.0)))
     total = sum(w for w, _ in raw) or 1.0

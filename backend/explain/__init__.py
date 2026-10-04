@@ -36,11 +36,12 @@ def step_claims(inc: Incident, steps: list[AttackStep], sigs: dict[str, Signal],
             text = f"{text}. Also: {extra}"
         ev: list[EvidenceRef] = []
         seen = set()
-        for s in [lead, *others]:
-            for r in s.evidence:
-                if r.event_id not in seen and r.role is EvidenceRole.supports:
-                    seen.add(r.event_id)
-                    ev.append(r)
+        for role in (EvidenceRole.supports, EvidenceRole.context):  # primary lines first, then what led up to them
+            for s in [lead, *others]:
+                for r in s.evidence:
+                    if r.event_id not in seen and r.role is role:
+                        seen.add(r.event_id)
+                        ev.append(r)
         out.append(Claim(id=short("C", st.id), incident_id=inc.id, type=CLAIM_TYPE.get(st.stage, ClaimType.ACTION), text=text,
                          facts={"stage": st.stage.value, "detectors": [s.detector for s in group], **lead.explanation_params},
                          evidence=ev[:24], confidence=round(sum(s.confidence for s in group) / len(group), 3), step_id=st.id))
@@ -97,10 +98,13 @@ def dismissals(corr: Correlation, sigs: dict[str, Signal], notes: list[dict], in
         ev = [EvidenceRef(event_id=eid, role=EvidenceRole.contradicts) for eid in ns[0]["event_ids"][:6]]
         out.append(Dismissal(id=short("D", kind, ent), entity=ent, decision="not_flagged", reasons=reasons, counter_evidence=ev,
                              would_flag_if=would))
-    # 3) weak anchors never confirmed (new network during normal hours, nothing followed) - the most recent few
+    # 3) weak anchors never confirmed (new network during normal hours, nothing followed): one entry for the pattern
+    weak = [s for s in sorted(sigs.values(), key=lambda x: x.t_start, reverse=True)
+            if s.detector == "D04" and s.features.get("weak_anchor") and s.id not in corr.active_signals
+            and next((e for e in s.entities if e.startswith("user:")), None) not in incident_entities]
     weak_shown = 0
-    for s in sorted(sigs.values(), key=lambda x: x.t_start, reverse=True):
-        if weak_shown >= 3:
+    for s in weak:
+        if weak_shown >= 1:
             break
         if s.detector == "D04" and s.features.get("weak_anchor") and s.id not in corr.active_signals:
             ent = next((e for e in s.entities if e.startswith("user:")), None)
@@ -109,7 +113,8 @@ def dismissals(corr: Correlation, sigs: dict[str, Signal], notes: list[dict], in
             out.append(Dismissal(
                 id=short("D", s.id), entity=ent, decision="not_flagged",
                 reasons=[render(s), "it happened during this person's normal working hours",
-                         "nothing privileged, persistent or data-moving happened in that session"],
+                         "nothing privileged, persistent or data-moving happened in that session"]
+                        + ([f"{len(weak) - 1} other account(s) show the same harmless pattern"] if len(weak) > 1 else []),
                 counter_evidence=[EvidenceRef(event_id=r.event_id, role=EvidenceRole.contradicts) for r in s.evidence[:3]],
                 would_flag_if="root access, persistence or bulk data access inside that session"))
             weak_shown += 1
