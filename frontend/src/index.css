@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* 221B design tokens: forensic dossier. One signal colour, reserved for the compromise path. */
+:root {
+  --ink: #0e0f12;
+  --ink-2: #16181d;
+  --ink-3: #1f222a;
+  --line: #2a2e38;
+  --paper: #ece6d8;
+  --paper-dim: #a9a597;
+  --signal: #e8512f;
+  --ok: #7fae8c;
+}
+html, body, #root { height: 100%; }
+body { background: var(--ink); color: var(--paper); font-family: Inter, system-ui, sans-serif; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
+.serif { font-family: "Newsreader", Georgia, serif; }

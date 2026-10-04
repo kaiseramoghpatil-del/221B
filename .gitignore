@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.hypothesis/
+.venv/
+node_modules/
+frontend/dist/
+data/cases/
+data/*.sqlite
+*.sqlite
+.env
+.DS_Store
+data/demo_case/
