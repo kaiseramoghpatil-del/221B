@@ -82,8 +82,25 @@ No LLM is involved in detection, correlation, scoring or explanation.
 
 > **Read this honestly.** The detectors were developed against this same scenario generator. These numbers show
 > consistency and robustness to the difficulty knobs (stealth, 1–40 rotating IPs, 10–30% log loss, clock skew,
-> duplicated, shuffled and corrupted lines). They are **not** a real-world accuracy figure, and no held-out attack
-> pattern has been evaluated yet (see Limitations).
+> duplicated, shuffled and corrupted lines). They are **not** a real-world accuracy figure.
+
+### Held-out test (run once, after the engine was frozen)
+
+`python -m eval.sweep --seeds 1001..1090 --templates T3 --name benchmark_heldout` → `docs/benchmark_heldout.md`
+
+A new attack template (T3, an insider stealing data with their own account in normal hours, with no break-in) was
+written after the detection engine was frozen and evaluated once, unchanged:
+
+| | Value |
+|---|---|
+| Reconstructed as an incident | **0 / 90** |
+| Theft surfaced as a high-priority Watchlist item naming the right account or destination | 90 / 90 |
+| Attack stages in the best unit: time-window grouping vs 221B | 65% vs 1% |
+
+This is the design's blind spot. 221B links steps only when one established what the next needed; with no
+break-in nothing establishes attacker access, so the steps stay single-stage findings. The next fix (an
+"insider anchor": first-ever access to a sensitive host followed by bulk data access in the same session) has
+deliberately **not** been added, so this stays a real held-out number.
 
 ## Run it
 
@@ -101,7 +118,7 @@ Development: `cd frontend && npm run dev` (Vite on :5173, proxies `/api` to :822
 Other commands:
 
 ```bash
-python -m pytest                                   # 72 tests
+python -m pytest                                   # 73 tests
 python -m sim.cli --seed 1 --template T1 --out data/demo_case   # write a scenario's raw logs + truth.json to disk
 python -m eval.sweep --seeds 1..300                # benchmark (about 4 min on 8 cores)
 python scripts/export_contract.py                  # regenerate contract/openapi.json after a deliberate contract change
@@ -136,7 +153,7 @@ TypeScript, Tailwind CSS v4; Archivo and JetBrains Mono fonts (bundled via Fonts
 
 ## Testing
 
-72 tests:
+73 tests:
 - **Parsers:** golden lines for every parser, including awkward real-world lines.
 - **Generator round trip:** every ground-truth line must parse into the right kind of event, under duplicates, shuffling, corruption, clock skew and log loss.
 - **Property tests:** ingest never crashes and accounts for every line; normalize and the full pipeline are order-invariant.
@@ -172,7 +189,7 @@ with the permission of The MITRE Corporation.
 
 ## Limitations and future work
 
-- **No held-out evaluation yet.** All benchmark scenarios come from the generator the detectors were developed against. An attack pattern the detectors were not designed around, and labelled public data, are the next steps.
+- **Insider misuse is not reconstructed.** On the held-out insider template, 0 of 90 thefts became an incident, though all 90 reached the high-priority Watchlist. All benchmark data, including the held-out template, comes from our own generator; labelled public data is the next step.
 - **Single-stage blind spots by design.** An intruder who does only one thing (for example a valid-password login during normal hours followed by nothing suspicious) stays on the Watchlist or is cleared. A stolen-credential login during the victim's normal hours becomes an anchor only if a strong signal follows in that same session.
 - **Known false-positive shape.** An administrator logging in at an odd hour from a new network and touching hosts for the first time can form an extra incident: 3 of 300 benchmark cases.
 - **Concurrent sessions.** When the victim and the intruder use the same account on the same host at the same time, audit activity cannot be attributed to a session; 221B leaves it unattributed rather than guessing (1 of 300 cases still names an innocent address).

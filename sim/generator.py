@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from backend.core.models import (GroundTruth, ScenarioParams, Stage, TruthDecoy, TruthGap, TruthRef,
                                  TruthStage)
 
-from . import attack, benign, decoys
+from . import attack, attack_insider, benign, decoys
 from .context import Ctx
 from .records import FILE_NAMES, FLOWS_HEADER, Rec, render
 from .topology import IpPool, build_topology
@@ -57,6 +57,8 @@ def generate(seed: int, params: ScenarioParams | None = None) -> Scenario:
     info = None
     if params.template in ("T1", "T2"):
         info = attack.build(c, params.template, exclude)
+    elif params.template == "T3":  # held-out: insider misuse
+        info = attack_insider.build_insider(c, exclude)
 
     recs = c.recs
     truth_gaps: list[TruthGap] = []

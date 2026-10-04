@@ -242,6 +242,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/eval/heldout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Eval Heldout
+         * @description Held-out test: a template written after the engine was frozen (insider misuse, T3).
+         */
+        get: operations["eval_heldout_api_eval_heldout_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/eval/latest": {
         parameters: {
             query?: never;
@@ -385,7 +405,7 @@ export interface components {
             case_id: string;
             /**
              * Contract Version
-             * @default 1.0.0
+             * @default 1.1.0
              */
             contract_version: string;
             /** Error */
@@ -792,7 +812,7 @@ export interface components {
         Health: {
             /**
              * Contract Version
-             * @default 1.0.0
+             * @default 1.1.0
              */
             contract_version: string;
             /** Pipeline Version */
@@ -1817,6 +1837,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    eval_heldout_api_eval_heldout_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvalReport"];
                 };
             };
         };

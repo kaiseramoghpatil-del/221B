@@ -39,7 +39,7 @@ def test_roundtrip_clean_files_parse_with_zero_quarantine(template):
         assert f.parser_conf >= 0.9, f
 
 
-@pytest.mark.parametrize("template", ["T1", "T2"])
+@pytest.mark.parametrize("template", ["T1", "T2", "T3"])
 def test_every_truth_ref_resolves_to_the_right_kind_of_event(template):
     sc, res = run(5, template=template)
     by_line = {(res.file_names[e.file_id], e.line_no): e for e in res.events}

@@ -32,7 +32,7 @@ chose.
 - **A judge's seed gives a miss or an extra incident:** don't hide it. "Here's where it falls short." Open the Verify page's *Where it fell short* list: the same kinds of cases are already documented there.
 - **Server down or slow:** switch to the recorded video. Every UI state is deep-linkable, so screenshots can stand in.
 - **Asked "is this just an LLM?":** "No model makes any decision. Detection, linking, scoring and the text are deterministic; every sentence is generated from the evidence and cites it."
-- **Asked "isn't it tested on its own data?":** "Yes, and the page says so. The logs go through the same parser as an upload, the code can't see the generator, and the truth is hidden until reveal. A held-out attack pattern and labelled public data are next."
+- **Asked "isn't it tested on its own data?":** "Yes, and the page says so. That's why we wrote one attack type after freezing the engine and tested it once: an insider stealing data with their own account. 221B put the theft at the top of the watchlist 90 times out of 90, but never built it into an incident. That's on the Verify page too, along with the fix we'd make next."
 
 ## Recording the 90-second fallback video
 1. Demo case, funnel and verdict (15 s).

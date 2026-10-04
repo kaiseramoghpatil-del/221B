@@ -1,0 +1,1469 @@
+{
+ "generated_at": "2026-10-04T11:03:36+00:00",
+ "pipeline_version": "0.1.0",
+ "n_scenarios": 90,
+ "seeds": [
+  1001,
+  1002,
+  1003,
+  1004,
+  1005,
+  1006,
+  1007,
+  1008,
+  1009,
+  1010,
+  1011,
+  1012,
+  1013,
+  1014,
+  1015,
+  1016,
+  1017,
+  1018,
+  1019,
+  1020,
+  1021,
+  1022,
+  1023,
+  1024,
+  1025,
+  1026,
+  1027,
+  1028,
+  1029,
+  1030,
+  1031,
+  1032,
+  1033,
+  1034,
+  1035,
+  1036,
+  1037,
+  1038,
+  1039,
+  1040,
+  1041,
+  1042,
+  1043,
+  1044,
+  1045,
+  1046,
+  1047,
+  1048,
+  1049,
+  1050,
+  1051,
+  1052,
+  1053,
+  1054,
+  1055,
+  1056,
+  1057,
+  1058,
+  1059,
+  1060,
+  1061,
+  1062,
+  1063,
+  1064,
+  1065,
+  1066,
+  1067,
+  1068,
+  1069,
+  1070,
+  1071,
+  1072,
+  1073,
+  1074,
+  1075,
+  1076,
+  1077,
+  1078,
+  1079,
+  1080,
+  1081,
+  1082,
+  1083,
+  1084,
+  1085,
+  1086,
+  1087,
+  1088,
+  1089,
+  1090
+ ],
+ "metrics": {
+  "B2_221B": {
+   "detection_rate": 0.0,
+   "surfaced_on_watchlist_only": 1.0,
+   "entry_ip_accuracy": 0.0,
+   "account_accuracy": 0.0,
+   "victim_host_accuracy": 0.0,
+   "stage_recall": 0.0111,
+   "stage_order_accuracy": 1.0,
+   "purity": 0.0,
+   "gap_recall": 0.0,
+   "false_suspects_per_run": 0.0444,
+   "extra_incidents_per_attack_run": 0.0222,
+   "units_to_review_per_run": 0.0222,
+   "median_runtime_ms": 12307.5,
+   "median_events": 22072.5
+  },
+  "B0_naive_alerts": {
+   "units_to_review_per_run": 21.6889,
+   "precision": 0.1754
+  },
+  "B1_time_window": {
+   "units_to_review_per_run": 14.8889,
+   "stage_recall": 0.6472,
+   "purity": 0.9017
+  },
+  "counts": {
+   "attack_runs": 90.0,
+   "clean_runs": 0.0
+  }
+ },
+ "by_tier": {
+  "easy": {
+   "runs": 34.0,
+   "detection_rate": 0.0,
+   "surfaced_on_watchlist_only": 1.0,
+   "entry_ip_accuracy": 0.0,
+   "account_accuracy": 0.0,
+   "victim_host_accuracy": 0.0,
+   "stage_recall": 0.0,
+   "false_suspects_per_run": 0.0,
+   "extra_incidents_per_attack_run": 0.0,
+   "units_to_review_per_run": 0.0
+  },
+  "medium": {
+   "runs": 27.0,
+   "detection_rate": 0.0,
+   "surfaced_on_watchlist_only": 1.0,
+   "entry_ip_accuracy": 0.0,
+   "account_accuracy": 0.0,
+   "victim_host_accuracy": 0.0,
+   "stage_recall": 0.0185,
+   "stage_order_accuracy": 1.0,
+   "purity": 0.0,
+   "false_suspects_per_run": 0.0741,
+   "extra_incidents_per_attack_run": 0.037,
+   "units_to_review_per_run": 0.037
+  },
+  "hard": {
+   "runs": 29.0,
+   "detection_rate": 0.0,
+   "surfaced_on_watchlist_only": 1.0,
+   "entry_ip_accuracy": 0.0,
+   "account_accuracy": 0.0,
+   "victim_host_accuracy": 0.0,
+   "stage_recall": 0.0172,
+   "stage_order_accuracy": 1.0,
+   "purity": 0.0,
+   "gap_recall": 0.0,
+   "false_suspects_per_run": 0.069,
+   "extra_incidents_per_attack_run": 0.0345,
+   "units_to_review_per_run": 0.0345
+  }
+ },
+ "by_template": {
+  "T3": {
+   "runs": 90.0,
+   "detection_rate": 0.0,
+   "surfaced_on_watchlist_only": 1.0,
+   "entry_ip_accuracy": 0.0,
+   "account_accuracy": 0.0,
+   "victim_host_accuracy": 0.0,
+   "stage_recall": 0.0111,
+   "stage_order_accuracy": 1.0,
+   "purity": 0.0,
+   "gap_recall": 0.0,
+   "false_suspects_per_run": 0.0444,
+   "extra_incidents_per_attack_run": 0.0222,
+   "units_to_review_per_run": 0.0222
+  }
+ },
+ "misses": [
+  {
+   "seed": 1001,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.03,
+    "stealth": 0.72,
+    "ip_rotation": 40,
+    "log_loss": 0.3,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1002,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.39,
+    "stealth": 0.54,
+    "ip_rotation": 1,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1003,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.04,
+    "stealth": 0.68,
+    "ip_rotation": 3,
+    "dup_rate": 0.0,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1004,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.87,
+    "stealth": 0.83,
+    "ip_rotation": 10,
+    "log_loss": 0.1,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1005,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.91,
+    "stealth": 0.01,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1006,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.32,
+    "stealth": 0.7,
+    "ip_rotation": 10,
+    "log_loss": 0.1,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1007,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.62,
+    "stealth": 0.91,
+    "ip_rotation": 10,
+    "log_loss": 0.3,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1008,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 0.88,
+    "stealth": 0.67,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1009,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 0.79,
+    "stealth": 0.93,
+    "ip_rotation": 40,
+    "log_loss": 0.1,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1010,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.89,
+    "stealth": 0.06,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1011,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.37,
+    "stealth": 0.65,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1012,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.95,
+    "stealth": 0.67,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1013,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.93,
+    "stealth": 0.07,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1014,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.02,
+    "stealth": 0.26,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1015,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 0.69,
+    "stealth": 0.99,
+    "ip_rotation": 10,
+    "log_loss": 0.1,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1016,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.24,
+    "stealth": 0.16,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1017,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 0.88,
+    "stealth": 0.31,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1018,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.49,
+    "stealth": 0.62,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1019,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.51,
+    "stealth": 0.15,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1020,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.86,
+    "stealth": 0.71,
+    "ip_rotation": 40,
+    "log_loss": 0.3,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1021,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.18,
+    "stealth": 0.63,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1022,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.04,
+    "stealth": 0.13,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1023,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.16,
+    "stealth": 0.18,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1024,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.29,
+    "stealth": 0.45,
+    "ip_rotation": 1,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1025,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.38,
+    "stealth": 0.44,
+    "ip_rotation": 3,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1026,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.56,
+    "stealth": 0.35,
+    "ip_rotation": 3,
+    "dup_rate": 0.0,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1027,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.57,
+    "stealth": 0.71,
+    "ip_rotation": 10,
+    "log_loss": 0.1,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1028,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.49,
+    "stealth": 0.86,
+    "ip_rotation": 20,
+    "log_loss": 0.3,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1029,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.68,
+    "stealth": 0.64,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1030,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.96,
+    "stealth": 0.08,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1031,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.25,
+    "stealth": 0.91,
+    "ip_rotation": 20,
+    "log_loss": 0.2,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1032,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.48,
+    "stealth": 0.21,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1033,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 0.92,
+    "stealth": 0.33,
+    "ip_rotation": 1,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1034,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.05,
+    "stealth": 0.51,
+    "ip_rotation": 3,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1035,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.76,
+    "stealth": 0.65,
+    "ip_rotation": 1,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1036,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.85,
+    "stealth": 0.31,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1037,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.85,
+    "stealth": 0.98,
+    "ip_rotation": 20,
+    "log_loss": 0.2,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1038,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.56,
+    "stealth": 0.82,
+    "ip_rotation": 40,
+    "log_loss": 0.3,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1039,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.77,
+    "stealth": 0.26,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1040,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.06,
+    "stealth": 0.8,
+    "ip_rotation": 10,
+    "log_loss": 0.1,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1041,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 0.84,
+    "stealth": 0.83,
+    "ip_rotation": 20,
+    "log_loss": 0.1,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1042,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.04,
+    "stealth": 0.07,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1043,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.37,
+    "stealth": 0.99,
+    "ip_rotation": 10,
+    "log_loss": 0.2,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1044,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.58,
+    "stealth": 0.77,
+    "ip_rotation": 20,
+    "log_loss": 0.3,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1045,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.62,
+    "stealth": 1.0,
+    "ip_rotation": 40,
+    "log_loss": 0.1,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1046,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.82,
+    "stealth": 0.06,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1047,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.46,
+    "stealth": 0.98,
+    "ip_rotation": 40,
+    "log_loss": 0.2,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1048,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.09,
+    "stealth": 0.5,
+    "ip_rotation": 3,
+    "dup_rate": 0.03,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1049,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.52,
+    "stealth": 0.73,
+    "ip_rotation": 10,
+    "log_loss": 0.1,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1050,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.22,
+    "stealth": 0.21,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1051,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.98,
+    "stealth": 0.61,
+    "ip_rotation": 2,
+    "dup_rate": 0.0,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1052,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.17,
+    "stealth": 0.08,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1053,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.28,
+    "stealth": 0.38,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1054,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.53,
+    "stealth": 0.48,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1055,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.62,
+    "stealth": 0.27,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1056,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.76,
+    "stealth": 0.02,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1057,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.08,
+    "stealth": 0.08,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1058,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.27,
+    "stealth": 0.16,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1059,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.8,
+    "stealth": 0.01,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1060,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 0.86,
+    "stealth": 0.72,
+    "ip_rotation": 40,
+    "log_loss": 0.3,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1061,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.99,
+    "stealth": 0.23,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1062,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.61,
+    "stealth": 0.18,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1063,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.28,
+    "stealth": 0.23,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1064,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.85,
+    "stealth": 0.61,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1065,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.31,
+    "stealth": 0.27,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1066,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.04,
+    "stealth": 0.27,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1067,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.14,
+    "stealth": 0.52,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1068,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.27,
+    "stealth": 0.29,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1069,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.2,
+    "stealth": 0.9,
+    "ip_rotation": 10,
+    "log_loss": 0.3,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1070,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.89,
+    "stealth": 0.14,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1071,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 0.76,
+    "stealth": 0.83,
+    "ip_rotation": 20,
+    "log_loss": 0.2,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1072,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.51,
+    "stealth": 0.15,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1073,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.76,
+    "stealth": 0.19,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1074,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.99,
+    "stealth": 0.61,
+    "ip_rotation": 3,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1075,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.45,
+    "stealth": 0.94,
+    "ip_rotation": 40,
+    "log_loss": 0.2,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1076,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.79,
+    "stealth": 0.46,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1077,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.27,
+    "stealth": 0.66,
+    "ip_rotation": 2,
+    "dup_rate": 0.03,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1078,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.56,
+    "stealth": 0.98,
+    "ip_rotation": 10,
+    "log_loss": 0.3,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1079,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 1.96,
+    "stealth": 0.09,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1080,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.63,
+    "stealth": 0.04,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1081,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.49,
+    "stealth": 1.0,
+    "ip_rotation": 20,
+    "log_loss": 0.3,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1082,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 0.66,
+    "stealth": 0.52,
+    "ip_rotation": 1,
+    "dup_rate": 0.0,
+    "shuffle": 0.0
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1083,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.62,
+    "stealth": 0.94,
+    "ip_rotation": 10,
+    "log_loss": 0.3,
+    "clock_skew_s": 300,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1084,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.97,
+    "stealth": 0.07,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1085,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.61,
+    "stealth": 0.27,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1086,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.2,
+    "stealth": 0.91,
+    "ip_rotation": 10,
+    "log_loss": 0.2,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1087,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.19,
+    "stealth": 0.92,
+    "ip_rotation": 40,
+    "log_loss": 0.2,
+    "clock_skew_s": -600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1088,
+   "template": "T3",
+   "tier": "easy",
+   "params": {
+    "template": "T3",
+    "noise": 0.97,
+    "stealth": 0.02,
+    "ip_rotation": 1
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1089,
+   "template": "T3",
+   "tier": "hard",
+   "params": {
+    "template": "T3",
+    "noise": 1.21,
+    "stealth": 0.89,
+    "ip_rotation": 10,
+    "log_loss": 0.2,
+    "clock_skew_s": 600,
+    "dup_rate": 0.03,
+    "shuffle": 0.5,
+    "malformed_rate": 0.01
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  },
+  {
+   "seed": 1090,
+   "template": "T3",
+   "tier": "medium",
+   "params": {
+    "template": "T3",
+    "noise": 1.12,
+    "stealth": 0.4,
+    "ip_rotation": 2,
+    "dup_rate": 0.0,
+    "shuffle": 0.5
+   },
+   "why": "no incident; the data theft was surfaced as a high-priority watchlist item"
+  }
+ ]
+}

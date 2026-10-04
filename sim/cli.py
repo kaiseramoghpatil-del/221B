@@ -14,7 +14,7 @@ from .generator import generate
 def main() -> None:
     ap = argparse.ArgumentParser(description="221B scenario generator")
     ap.add_argument("--seed", type=int, default=1)
-    ap.add_argument("--template", default="T1", choices=["T0", "T1", "T2"])
+    ap.add_argument("--template", default="T1", choices=["T0", "T1", "T2", "T3"])
     ap.add_argument("--stealth", type=float, default=0.5)
     ap.add_argument("--ip-rotation", type=int, default=1)
     ap.add_argument("--noise", type=float, default=1.0)

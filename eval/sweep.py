@@ -28,9 +28,11 @@ OUT_JSON = ROOT / "docs" / "benchmark.json"
 OUT_MD = ROOT / "docs" / "benchmark.md"
 
 
-def scenario_for(seed: int, scale: float) -> tuple[str, dict]:
+def scenario_for(seed: int, scale: float, templates: tuple[str, ...] | None = None) -> tuple[str, dict]:
     rng = random.Random(seed * 7919 + 3)
     template = rng.choices(["T0", "T1", "T2"], weights=[2, 4, 4])[0]
+    if templates:
+        template = templates[seed % len(templates)]
     tier = rng.choice(["easy", "medium", "hard"])
     p: dict = {"template": template, "scale": scale, "noise": round(rng.uniform(0.6, 2.0), 2)}
     if tier == "easy":
@@ -45,8 +47,9 @@ def scenario_for(seed: int, scale: float) -> tuple[str, dict]:
     return tier, p
 
 
-def run_one(args: tuple[int, float]) -> dict:
-    seed, scale = args
+def run_one(args: tuple) -> dict:
+    seed, scale = args[0], args[1]
+    templates = args[2] if len(args) > 2 else None
     from backend.core.models import ScenarioParams
     from backend.ingest import IngestContext, ingest_files
     from backend.pipeline import analyze
@@ -54,7 +57,7 @@ def run_one(args: tuple[int, float]) -> dict:
     from eval.match import reveal
     from sim.generator import generate
 
-    tier, p = scenario_for(seed, scale)
+    tier, p = scenario_for(seed, scale, templates)
     params = ScenarioParams(**p)
     t0 = time.perf_counter()
     sc = generate(seed, params)
@@ -86,8 +89,12 @@ def run_one(args: tuple[int, float]) -> dict:
         stage_order=card.stage_order_accuracy, purity=card.cluster_purity, stage_recall=base["B2_221B"]["stage_recall"],
         gap_recall=card.gap_recall, stages_found=len(hit[0].stages_covered) if hit else 0,
     )
+    truth_ents = {f"user:{u}" for u in sc.truth.compromised_users} | {f"ip:{x}" for x in sc.truth.exfil_dst_ips}
+    row["surfaced_on_watchlist"] = bool(not hit and any(
+        w.watchlist_priority is not None and w.watchlist_priority.value == "high" and truth_ents & set(w.entities) for w in v.watchlist))
     if not hit:
-        row["why"] = "no incident contains the compromised account; watchlist: " + "; ".join(w.title for w in v.watchlist[:4])
+        row["why"] = ("no incident; the data theft was surfaced as a high-priority watchlist item" if row["surfaced_on_watchlist"]
+                      else "no incident contains the compromised account; watchlist: " + "; ".join(w.title for w in v.watchlist[:4]))
     elif row["extra_incidents"]:
         row["why"] = "extra incident(s): " + "; ".join(i.title for i in v.incidents if i not in hit)
     elif not row["entry_ok"]:
@@ -111,6 +118,7 @@ def aggregate(rows: list[dict]) -> dict:
         out = {
             "B2_221B": {
                 "detection_rate": _mean(r["detected"] for r in rs_atk),
+                "surfaced_on_watchlist_only": _mean(r.get("surfaced_on_watchlist", False) for r in rs_atk),
                 "entry_ip_accuracy": _mean(r["entry_ok"] for r in rs_atk),
                 "account_accuracy": _mean(r["account_ok"] for r in rs_atk),
                 "victim_host_accuracy": _mean(r["victim_ok"] for r in rs_atk),
@@ -142,7 +150,7 @@ def aggregate(rows: list[dict]) -> dict:
         if ra or rc:
             by_tier[t] = {"runs": float(len(ra) + len(rc)), **system_metrics(ra, rc)["B2_221B"]}
     by_template = {}
-    for tp in ("T0", "T1", "T2"):
+    for tp in ("T0", "T1", "T2", "T3"):
         ra = [r for r in atk if r["template"] == tp]
         rc = [r for r in clean if r["template"] == tp]
         if ra or rc:
@@ -204,7 +212,13 @@ def main() -> None:
     ap.add_argument("--seeds", default="1..300")
     ap.add_argument("--scale", type=float, default=0.35)
     ap.add_argument("--workers", type=int, default=0)
+    ap.add_argument("--templates", default="", help="comma list to restrict templates, e.g. T3 for the held-out test")
+    ap.add_argument("--name", default="benchmark", help="output basename under docs/")
     a = ap.parse_args()
+    templates = tuple(t for t in a.templates.split(",") if t) or None
+    global OUT_JSON, OUT_MD
+    OUT_JSON = ROOT / "docs" / f"{a.name}.json"
+    OUT_MD = ROOT / "docs" / f"{a.name}.md"
     lo, hi = (int(x) for x in a.seeds.split(".."))
     seeds = list(range(lo, hi + 1))
     import os
@@ -214,7 +228,7 @@ def main() -> None:
     workers = a.workers or max(1, (os.cpu_count() or 2) - 1)
     t = time.time()
     with ProcessPoolExecutor(max_workers=workers) as ex:
-        rows = list(ex.map(run_one, [(s, a.scale) for s in seeds], chunksize=4))
+        rows = list(ex.map(run_one, [(s, a.scale, templates) for s in seeds], chunksize=4))
     agg = aggregate(rows)
     misses = [{"seed": r["seed"], "template": r["template"], "tier": r["tier"], "params": r["params"], "why": r["why"]}
               for r in rows if r.get("why")]

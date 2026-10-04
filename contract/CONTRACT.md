@@ -1,4 +1,6 @@
-# 221B API & data contract - FROZEN v1.0.0
+# 221B API & data contract - FROZEN v1.1.0
+
+v1.1.0 (deliberate bump): `ScenarioParams.template` accepts `T3` (held-out insider-misuse template); new `GET /api/eval/heldout`.
 
 Source of truth: `backend/core/models.py` (Pydantic v2). The HTTP surface is `backend/api/*`; the machine-readable
 contract is `contract/openapi.json`; TypeScript types are generated into `frontend/src/api/types.ts`.

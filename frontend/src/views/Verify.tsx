@@ -10,7 +10,7 @@ const TIER: Record<string, string> = {
   medium: "Medium: moderate stealth, up to 3 IPs, duplicated and shuffled lines",
   hard: "Hard: slow attacker, 10 to 40 rotating IPs, 10 to 30% of logs lost, clock skew, corrupted lines",
 };
-const TEMPLATE: Record<string, string> = { T0: "No attack (clean week)", T1: "Stolen credential", T2: "Password guessing" };
+const TEMPLATE: Record<string, string> = { T0: "No attack (clean week)", T1: "Stolen credential", T2: "Password guessing", T3: "Insider theft (held-out)" };
 const BASELINE = "#6B7583"; // context bars (validated vs crimson: CVD ΔE 12.1, contrast ≥ 3:1)
 
 /** One measure, three readings: horizontal bars, each labelled directly (identity never by colour alone). */
@@ -39,10 +39,12 @@ function Bars({ title, unit, rows }: { title: string; unit: (v: number) => strin
 
 export default function Verify({ onOpenCase }: { onOpenCase: (caseId: string) => void }) {
   const [rep, setRep] = useState<Report | null>(null);
+  const [held, setHeld] = useState<Report | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [opening, setOpening] = useState<number | null>(null);
 
   useEffect(() => {
+    api.evalHeldout().then(setHeld, () => setHeld(null));
     api.evalLatest().then(setRep, (e) =>
       setErr(e instanceof ApiError && e.status === 404 ? "No benchmark has been run yet. Run: python -m eval.sweep" : "The analysis server is not reachable."),
     );
@@ -101,7 +103,7 @@ export default function Verify({ onOpenCase }: { onOpenCase: (caseId: string) =>
         <p className="pretty mt-3 max-w-[72ch] rounded-[4px] border-l-2 border-watch bg-watch-soft px-4 py-3 text-[14px] text-graphite">
           What this does and does not show: the detectors were built while looking at this same scenario generator, so these numbers
           measure consistency and robustness to stealth, IP rotation, missing logs, clock skew and corrupted lines. They are not a
-          real-world accuracy figure.
+          real-world accuracy figure. The held-out test further down is the honest counterweight.
         </p>
       </header>
 
@@ -118,6 +120,8 @@ export default function Verify({ onOpenCase }: { onOpenCase: (caseId: string) =>
           </div>
         ))}
       </section>
+
+      {held && <HeldOut rep={held} />}
 
       <section aria-labelledby="three-h" className="mt-12">
         <h2 id="three-h" className="w-semi text-[22px] font-[650]">
@@ -296,5 +300,54 @@ export default function Verify({ onOpenCase }: { onOpenCase: (caseId: string) =>
         </p>
       </section>
     </main>
+  );
+}
+
+/** The held-out test: a template written after the engine was frozen, reported as-is. */
+function HeldOut({ rep }: { rep: Report }) {
+  const m = rep.metrics as Record<string, Row>;
+  const b2 = m.B2_221B ?? {};
+  const b1 = m.B1_time_window ?? {};
+  const n = (m.counts ?? {}).attack_runs ?? 0;
+  const found = Math.round((b2.detection_rate ?? 0) * n);
+  const surfaced = Math.round((b2.surfaced_on_watchlist_only ?? 0) * n);
+  return (
+    <section aria-labelledby="held-h" className="mt-12 rounded-[4px] border border-rule bg-sheet p-6">
+      <p className="text-[13px] text-slate">Held-out test, run once after the detection engine was frozen</p>
+      <h2 id="held-h" className="w-cond balance mt-1 text-[30px] leading-[1.1] font-[700]">
+        An insider stealing data with their own account: 221B surfaces the theft, but does not reconstruct it as an incident.
+      </h2>
+      <dl className="mt-5 grid gap-6 sm:grid-cols-3">
+        <div>
+          <dt className="text-[13.5px] text-slate">reconstructed as an incident</dt>
+          <dd className="w-cond nums text-[36px] leading-none font-[700] text-breach">
+            {found} of {fmtNum(n)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[13.5px] text-slate">theft put on the high-priority watchlist, naming the right account or destination</dt>
+          <dd className="w-cond nums text-[36px] leading-none font-[700]">
+            {surfaced} of {fmtNum(n)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[13.5px] text-slate">stages in the best unit: grouped by time vs 221B</dt>
+          <dd className="w-cond nums text-[36px] leading-none font-[700]">
+            {fmtPct(b1.stage_recall ?? 0)} <span className="text-[22px] text-slate">vs</span> {fmtPct(b2.stage_recall ?? 0)}
+          </dd>
+        </div>
+      </dl>
+      <p className="pretty mt-5 max-w-[78ch] text-[15px] leading-[1.55] text-graphite">
+        This case has no break-in: a developer logs in normally, from home, in working hours, reaches the database server for the first
+        time, packs a dump and sends it to an outside address. 221B links steps only when one step established what the next one needed,
+        and here nothing established attacker access, so by design the steps stay single-stage findings. The exfiltration and the staging
+        still reach the top of the watchlist every time, but a reviewer has to connect them. On this pattern, simply grouping by time does
+        better. The fix we would make next is an insider anchor (first-ever access to a sensitive host followed by bulk data access in
+        the same session); it has deliberately not been added, so this result stays a real held-out number.
+      </p>
+      <p className="mt-3 text-[13px] text-slate">
+        {fmtNum(n)} cases across all three difficulty levels. Reproduce: <code className="font-mono">python -m eval.sweep --templates T3 --name benchmark_heldout</code>
+      </p>
+    </section>
   );
 }

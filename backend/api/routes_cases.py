@@ -154,6 +154,7 @@ def report(case_id: str) -> str:
 
 
 BENCHMARK = Path(__file__).resolve().parents[2] / "docs" / "benchmark.json"
+HELDOUT = Path(__file__).resolve().parents[2] / "docs" / "benchmark_heldout.json"
 
 
 @router.get("/eval/latest", response_model=EvalReport)
@@ -161,3 +162,11 @@ def eval_latest() -> EvalReport:
     if not BENCHMARK.is_file():
         raise HTTPException(404, "no benchmark yet - run: python -m eval.sweep")
     return EvalReport.model_validate_json(BENCHMARK.read_text(encoding="utf-8"))
+
+
+@router.get("/eval/heldout", response_model=EvalReport)
+def eval_heldout() -> EvalReport:
+    """Held-out test: a template written after the engine was frozen (insider misuse, T3)."""
+    if not HELDOUT.is_file():
+        raise HTTPException(404, "no held-out run yet - run: python -m eval.sweep --templates T3 --name benchmark_heldout")
+    return EvalReport.model_validate_json(HELDOUT.read_text(encoding="utf-8"))

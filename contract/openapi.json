@@ -249,7 +249,7 @@
             "type": "string"
           },
           "contract_version": {
-            "default": "1.0.0",
+            "default": "1.1.0",
             "title": "Contract Version",
             "type": "string"
           },
@@ -1357,7 +1357,7 @@
         "additionalProperties": false,
         "properties": {
           "contract_version": {
-            "default": "1.0.0",
+            "default": "1.1.0",
             "title": "Contract Version",
             "type": "string"
           },
@@ -2128,7 +2128,7 @@
           },
           "template": {
             "default": "T1",
-            "pattern": "^(T0|T1|T2)$",
+            "pattern": "^(T0|T1|T2|T3)$",
             "title": "Template",
             "type": "string"
           },
@@ -2838,9 +2838,9 @@
     }
   },
   "info": {
-    "description": "Forensic incident reconstruction API (contract v1.0.0)",
+    "description": "Forensic incident reconstruction API (contract v1.1.0)",
     "title": "221B",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -3633,6 +3633,28 @@
           }
         },
         "summary": "Suspects",
+        "tags": [
+          "cases"
+        ]
+      }
+    },
+    "/api/eval/heldout": {
+      "get": {
+        "description": "Held-out test: a template written after the engine was frozen (insider misuse, T3).",
+        "operationId": "eval_heldout_api_eval_heldout_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvalReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Eval Heldout",
         "tags": [
           "cases"
         ]

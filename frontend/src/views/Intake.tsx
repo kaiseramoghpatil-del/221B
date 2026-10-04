@@ -9,7 +9,7 @@ export default function Intake({ onOpen }: { onOpen: (caseId: string) => void })
   const [busy, setBusy] = useState<Busy>(null);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState("");
-  const [template, setTemplate] = useState<"T1" | "T2" | "T0">("T1");
+  const [template, setTemplate] = useState<"T1" | "T2" | "T0" | "T3">("T1");
   const [stealth, setStealth] = useState(0.5);
   const [rotation, setRotation] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -100,12 +100,13 @@ export default function Intake({ onOpen }: { onOpen: (caseId: string) => void })
                 <select
                   name="template"
                   value={template}
-                  onChange={(e) => setTemplate(e.target.value as "T1" | "T2" | "T0")}
+                  onChange={(e) => setTemplate(e.target.value as "T1" | "T2" | "T0" | "T3")}
                   className="mt-1 block w-full rounded-[4px] border border-rule bg-paper px-2 py-2 text-graphite"
                 >
                   <option value="T1">Stolen credential</option>
                   <option value="T2">Password guessing</option>
                   <option value="T0">No attack (clean)</option>
+                  <option value="T3">Insider theft (held-out test)</option>
                 </select>
               </label>
               <label className="block">

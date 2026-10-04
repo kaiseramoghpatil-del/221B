@@ -14,7 +14,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-CONTRACT_VERSION = "1.0.0"
+CONTRACT_VERSION = "1.1.0"
 
 
 class _M(BaseModel):
@@ -440,7 +440,7 @@ class AttackGraph(_M):
 class ScenarioParams(_M):
     """Validated ranges = the only knobs the UI may expose (sliders are capped here)."""
 
-    template: str = Field(default="T1", pattern="^(T0|T1|T2)$")  # T0 clean, T1 stolen credential, T2 brute-force success
+    template: str = Field(default="T1", pattern="^(T0|T1|T2|T3)$")  # T0 clean, T1 stolen credential, T2 brute force, T3 insider (held-out)
     stealth: float = Field(default=0.5, ge=0.0, le=1.0)
     ip_rotation: int = Field(default=1, ge=1, le=40)
     noise: float = Field(default=1.0, ge=0.2, le=3.0)
