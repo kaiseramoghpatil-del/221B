@@ -133,6 +133,7 @@ def normalize(events_in: list[Event]) -> NormalizedCase:
 
     # ---- attribute host activity to sessions
     session_of: dict[str, str] = {}
+    ambiguous_session_events: set[str] = set()
     for s in sessions.values():
         for eid in s.event_ids:
             session_of[eid] = s.id
@@ -141,10 +142,14 @@ def normalize(events_in: list[Event]) -> NormalizedCase:
             continue
         if e.action in (Action.proc_exec, Action.sudo, Action.su, Action.file_read, Action.file_write, Action.key_add,
                         Action.cron_add, Action.log_clear):
-            s = _find_open(by_user_host.get((e.user, e.host), []), e.ts_utc)
-            if s:
-                session_of[e.id] = s.id
-                s.event_ids.append(e.id)
+            cands = _open_sessions(by_user_host.get((e.user, e.host), []), e.ts_utc)
+            if len(cands) == 1:
+                session_of[e.id] = cands[0].id
+                cands[0].event_ids.append(e.id)
+            elif len(cands) > 1:
+                # the same account has several sessions open on this host and the audit line carries no tty/pid:
+                # attribution is genuinely ambiguous, so do not guess (correlation then matches on account + host only)
+                ambiguous_session_events.add(e.id)
 
     # ---- entities
     ent: dict[str, Entity] = {}
@@ -171,6 +176,11 @@ def normalize(events_in: list[Event]) -> NormalizedCase:
     return NormalizedCase(events=evs, by_id=by_id, sessions=sessions, session_of=session_of, ip_to_host=ip_to_host,
                           entities=ent, valid_users=valid_users, dup_collapsed=dups,
                           t_min=evs[0].ts_utc if evs else None, t_max=evs[-1].ts_utc if evs else None)
+
+
+def _open_sessions(lst: list[Sess], t: datetime) -> list[Sess]:
+    """All sessions in the list that are open at time t."""
+    return [s for s in lst if s.t_start <= t <= s.end_or_ttl]
 
 
 def _find_open(lst: list[Sess], t: datetime) -> Sess | None:

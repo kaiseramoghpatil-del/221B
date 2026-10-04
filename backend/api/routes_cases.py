@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import PlainTextResponse, StreamingResponse
@@ -152,6 +153,11 @@ def report(case_id: str) -> str:
     raise not_implemented("report export")
 
 
+BENCHMARK = Path(__file__).resolve().parents[2] / "docs" / "benchmark.json"
+
+
 @router.get("/eval/latest", response_model=EvalReport)
 def eval_latest() -> EvalReport:
-    raise not_implemented("benchmark report")
+    if not BENCHMARK.is_file():
+        raise HTTPException(404, "no benchmark yet - run: python -m eval.sweep")
+    return EvalReport.model_validate_json(BENCHMARK.read_text(encoding="utf-8"))

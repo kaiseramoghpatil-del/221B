@@ -62,5 +62,6 @@ export const api = {
   dismissals: (id: string) => get<S["DismissalList"]>(`/api/cases/${id}/dismissals`),
   naive: (id: string) => get<S["NaiveView"]>(`/api/cases/${id}/naive`),
   event: (id: string, eid: string, context = 4) => get<EventContext>(`/api/cases/${id}/events/${eid}?context=${context}`),
+  evalLatest: () => get<S["EvalReport"]>("/api/eval/latest"),
   reveal: (id: string) => fetch(`/api/cases/${id}/reveal`, { method: "POST" }).then((r) => j<RevealResponse>(r)),
 };

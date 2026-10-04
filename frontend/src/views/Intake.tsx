@@ -30,7 +30,7 @@ export default function Intake({ onOpen }: { onOpen: (caseId: string) => void })
 
   return (
     <main id="main" className="min-h-full">
-      <div className="mx-auto max-w-[1180px] px-6 pt-16 pb-24 md:px-10">
+      <div className="mx-auto max-w-[1180px] px-6 pt-8 pb-24 md:px-10">
         <header className="max-w-[760px]">
           <h1 className="w-cond text-[88px] leading-[0.9] font-[750] tracking-[-0.02em]">221B</h1>
           <p className="balance mt-6 text-[26px] leading-[1.25] font-[450] text-graphite">

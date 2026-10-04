@@ -182,6 +182,9 @@ export default function CaseView({ url, setUrl }: { url: UrlState; setUrl: (p: P
               </button>
             ))}
           </div>
+          <a href="/?page=verify" className="text-[13.5px] text-slate underline-offset-2 hover:text-graphite hover:underline">
+            How it was tested
+          </a>
           {data.summary.source === "scenario" && (
             <button
               type="button"

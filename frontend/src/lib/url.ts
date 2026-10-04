@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 /** URL is the source of truth for case / incident / view / evidence (deep-linkable, back button works). */
-export type UrlState = { case?: string; incident?: string; view?: "alerts"; claim?: string; dismissal?: string; reveal?: string };
+export type UrlState = { case?: string; incident?: string; view?: "alerts"; claim?: string; dismissal?: string; reveal?: string; page?: "verify" };
 
 function read(): UrlState {
   const p = new URLSearchParams(window.location.search);
   const out: UrlState = {};
-  for (const k of ["case", "incident", "view", "claim", "dismissal", "reveal"] as const) {
+  for (const k of ["case", "incident", "view", "claim", "dismissal", "reveal", "page"] as const) {
     const v = p.get(k);
     if (v) (out as Record<string, string>)[k] = v;
   }

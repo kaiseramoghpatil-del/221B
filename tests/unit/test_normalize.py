@@ -55,3 +55,16 @@ def test_normalize_is_order_invariant():
     b = normalize(evs)
     assert [e.id for e in a.events] == [e.id for e in b.events]
     assert {(s.user, s.host, s.parent is None) for s in a.sessions.values()} == {(s.user, s.host, s.parent is None) for s in b.sessions.values()}
+
+
+def test_concurrent_sessions_leave_host_activity_unattributed():
+    """Same account, two sessions open on the same host (e.g. victim and intruder): an audit line without tty/pid must
+    not be pinned to whichever session started last."""
+    auth = """Sep 30 03:00:00 bastion-01 sshd[100]: Accepted password for alice from 198.18.5.5 port 5000 ssh2
+Sep 30 03:10:00 bastion-01 sshd[101]: Accepted password for alice from 198.19.9.9 port 5001 ssh2
+"""
+    audit = '{"ts":"2026-09-30T03:20:00Z","host":"bastion-01","user":"alice","event":"exec","object":"id"}\n'
+    r = ingest_files([("auth.log", auth.encode()), ("audit.jsonl", audit.encode())], IngestContext(case_id="t", assume_year=2026))
+    nc = normalize(r.events)
+    ex = next(e for e in nc.events if e.action.value == "proc_exec")
+    assert ex.id not in nc.session_of
