@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "221b"
 version = "0.1.0"
-description = "221B - forensic incident reconstruction (ALGOTHON'26 ALG-CYBER-01)"
+description = "221B - forensic incident reconstruction from raw logs"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.110",

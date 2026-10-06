@@ -1,10 +1,10 @@
 @echo off
 setlocal
-title 221B - Find the Intruder
+title 221B - Forensic incident reconstruction
 cd /d "%~dp0"
 
 echo.
-echo   221B - Find the Intruder  (ALGOTHON'26, ALG-CYBER-01)
+echo   221B - Forensic incident reconstruction from raw logs
 echo.
 
 where python >nul 2>&1 || (echo [ERROR] Python not found. Install Python 3.11+ from https://python.org & goto :fail)

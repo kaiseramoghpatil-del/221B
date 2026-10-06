@@ -1,6 +1,6 @@
 """Generic CSV and JSON-lines parsers with an alias map (ECS-style dotted names supported).
 
-This is the 'unknown format' path: if an organizer or judge hands us a log in some other shape, header/key
+This is the 'unknown format' path: if someone hands us a log in some other shape, header/key
 aliases map it onto the Event schema; anything we cannot map is kept in attrs, never silently dropped.
 """
 from __future__ import annotations

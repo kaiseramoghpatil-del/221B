@@ -1,6 +1,6 @@
 # Event vocabulary - ECS alignment
 
-221B's `Event` uses ECS-style vocabulary so judges and analysts see familiar terms. Internal names are flat; this table maps them.
+221B's `Event` uses ECS-style vocabulary so analysts see familiar terms. Internal names are flat; this table maps them.
 
 | 221B field | ECS field | Notes |
 |---|---|---|

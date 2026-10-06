@@ -1,55 +1,32 @@
 # 221B — Architecture & Product Specification
-**ALGOTHON'26 · ALG-CYBER-01 "Find the Intruder"** · spec **v1.1** (research-informed; pre-implementation). Prior art, licensing and rationale for v1.1 changes: see `RESEARCH.md`. Change list: §21.
+Spec **v1.1** (research-informed; written before implementation). Prior art, licensing and rationale for v1.1 changes: see `RESEARCH.md`. Change list: §21.
 
 > Raw security events → suspicious signals → correlated entities → reconstructed attack sequence → identified intruder → evidence-backed explanation → live verification.
 
 ---
 
-## 0. What the source material actually says (verbatim extraction)
+## 0. Problem and design constraints
 
-### 0.1 ALG-CYBER-01 (problem statement PDF)
-- **Overview:** "Thousands of security events can hide an attacker among normal activity. Build a system that identifies suspicious behavior from logs."
-- **What to build:** "Analyze authentication, network or server logs to identify suspicious users/IPs, connect related events and create an incident timeline."
-- **Must have (6):** Log ingestion · Anomaly detection/rules · Suspicious user/IP detection · Event grouping · Incident timeline · Evidence.
-- **Innovation / Bonus:** "Connect multiple events and explain the likely attack sequence instead of flagging isolated events only."
-- **Suggested tech:** Python, log analysis, anomaly detection, rules/ML, dashboard, database/search.
-- **Judging focus:** "Detection quality, evidence, correlation across events and explainability."
-- **Stated inputs/data:** **None.** Unlike DATA-01 ("Teams receive a large dataset"), CYBER-01 never says logs are supplied, nor in what format. → We must (a) bring our own data, (b) tolerate whatever the organizers might announce.
+### 0.1 Problem
+Thousands of security events can hide an attacker among normal activity. 221B analyzes authentication, network and server logs to identify suspicious users and IPs, connect related events, build an incident timeline and back every conclusion with evidence. The central goal goes beyond flagging isolated events: **connect multiple events and explain the likely attack sequence.**
 
-### 0.2 Common submission expectations (all 12 PS)
-Working project with deployed demo where practical · source repo with clear README · **architecture diagram and explanation of major technical decisions** · demonstration of the core workflow · **testing evidence and handling of important edge cases** · **known limitations and future improvements** · **disclosure of external APIs, datasets and AI-assisted components** · equivalent technologies allowed.
+Capabilities this implies: log ingestion · anomaly detection and rules · suspicious user/IP detection · event grouping · incident timeline · evidence. No reference dataset or log format is assumed.
 
-### 0.3 Rubric
-| Weight | Category |
+### 0.2 Licensing and safety constraints
+| Constraint | Consequence for the design |
 |---|---|
-| 30% | Functionality & Completion — "Does the core solution actually work?" |
-| 20% | Technical Implementation — quality, architecture, appropriate technology |
-| 20% | Innovation & Problem Understanding — originality and depth |
-| 15% | UX / Presentation — clarity, usability, demo quality |
-| 15% | Testing, Edge Cases & Reliability — robustness beyond the happy path |
-
-### 0.4 Rule Book constraints that touch architecture or risk disqualification
-| Rule | Consequence for us |
-|---|---|
-| 10:00 start · dev ends 22:00 · **submit by 23:00** · late = may be rejected | Hard freeze at 21:30. No new features after. Submit by 22:30. |
-| Team ≤ 2; collusion to circumvent team size = DQ | Two humans max (AI doesn't count, but disclose it). |
-| "Do not submit a project substantially completed before the hackathon"; disclose pre-existing code/templates | **Fresh repo created today**, `git init` now, commit early/often (timestamps are our evidence). Disclose scaffolding (Vite template, UI libs). |
-| AI tools allowed; must disclose; "responsible for originality, functionality, accuracy and licensing" | README "AI & third-party disclosure" section. |
-| Submitted project accessible to judges; private repos/broken links hurt | **Public repo + deployed URL that needs no login**; verify from an incognito window. |
-| README must explain problem, solution, features, setup, technologies | Written from template at hour 9. |
-| Only the final submitted version is evaluated | Tag `submission-v1`; don't push breaking changes after. |
-| Public datasets must comply with licenses | Loghub (optional sanity check) is research/academic-use: **do not redistribute in repo**, fetch via script, disclose. Our own synthetic data is original. |
+| Public datasets must comply with their licenses | Loghub (optional sanity check) is research/academic-use: **do not redistribute in repo**, fetch via script, disclose. Our own synthetic data is original. |
 | Using MITRE ATT&CK names/IDs in the product | ATT&CK terms require the notice: "© 2026 The MITRE Corporation. This work is reproduced and distributed with the permission of The MITRE Corporation." → UI footer + README. |
 | Third-party security tools/rules (Hayabusa AGPLv3, Chainsaw GPL-3.0, Elastic rules ELv2, Wazuh GPLv2) | **Reimplement patterns; vendor no security-tool code or rule text.** Prior-art credits in README (see RESEARCH.md §10). |
-| No attacking/overloading hackathon systems | Tool is purely defensive and offline: parses files, generates synthetic logs. No scanning anything. |
-| Results 5 Oct 20:30; certificates subject to completion criteria | Submit properly even if the build is imperfect. |
+| AI-assisted development | Disclosed in the README; the authors remain responsible for originality, functionality, accuracy and licensing. |
+| Purely defensive | The tool parses files and generates synthetic logs. It scans or touches nothing. |
 
-### 0.5 Architectural consequences (derived, not assumed)
-1. **No supplied data ⇒ we own the generator ⇒ we own ground truth.** This is both our biggest credibility gap (synthetic) and our biggest differentiator (provable detection). Design both sides on purpose.
-2. **Unknown log formats ⇒ pluggable parsers + a generic mapper.** If the organizers (or a judge) hand us a file, it must ingest or fail *visibly*.
-3. **"Evidence" is a must-have, not a nice-to-have** — it is one of six required features *and* a judging focus. Provenance is a first-class data structure, not a UI garnish.
-4. **The bonus is about the *unit of output***: the product's primary object is an **Incident with an attack chain**, never an alert.
-5. **Rubric 15% Testing** + "testing evidence" requirement ⇒ the evaluation harness is a shipped product feature (the "Verify" view), not a hidden folder.
+### 0.3 Architectural consequences (derived, not assumed)
+1. **No supplied data ⇒ we own the generator ⇒ we own ground truth.** This is both the biggest credibility gap (synthetic) and the biggest differentiator (provable detection). Design both sides on purpose.
+2. **Unknown log formats ⇒ pluggable parsers + a generic mapper.** If someone hands us a file, it must ingest or fail *visibly*.
+3. **Evidence is a core requirement, not a nice-to-have.** Provenance is a first-class data structure, not a UI garnish.
+4. **The goal is about the *unit of output***: the product's primary object is an **Incident with an attack chain**, never an alert.
+5. **Testing evidence is part of the product:** the evaluation harness ships as a feature (the "Verify" view), not a hidden folder.
 
 ---
 
@@ -62,7 +39,7 @@ Working project with deployed demo where practical · source repo with clear REA
 **Core experience:** An investigation room, not an alert console. The user sees a single reconstructed breach with a verdict, a replayable attack path, and a dossier whose every sentence links to raw log lines.
 
 **How it differs from a SIEM / anomaly dashboard**
-| Typical submission | 221B |
+| Typical log-analysis tool | 221B |
 |---|---|
 | Flat list of anomalies (IsolationForest scores, table) | Incidents with ordered attack chains; alerts are intermediate only |
 | "Suspicious IP" = loudest IP | Scoring rewards **consequence** (what happened *after* the signal), so loud-but-harmless sources rank low |
@@ -99,7 +76,7 @@ Working project with deployed demo where practical · source repo with clear REA
 2. **Investigation Room** (`/case/:id`) — the product.
 3. **Verify** (`/case/:id/verify`, plus `/verify` global benchmark) — proof & reliability.
 4. **Evidence Drawer** — slide-over, available everywhere.
-(*Methods/Architecture* is a static section inside Verify, so judges find the architecture diagram + limitations without leaving the app.)
+(*Methods/Architecture* is a static section inside Verify, so readers find the architecture diagram + limitations without leaving the app.)
 
 **Investigation Room layout**
 ```
@@ -119,7 +96,7 @@ Working project with deployed demo where practical · source repo with clear REA
 │   (victim)    │                                          │  Gaps/Caveats     │
 └───────────────┴──────────────────────────────────────────┴───────────────────┘
 ```
-**What a judge must grasp in 10 seconds:** the verdict card — *"Intruder: 185.220.x.x · entered 03:12 via stolen credential `mkessler` · reached `db-01` · 4.2 GB left at 04:51 · confidence 94%"* — and the funnel (212k → 1).
+**What a reader must grasp in 10 seconds:** the verdict card — *"Intruder: 185.220.x.x · entered 03:12 via stolen credential `mkessler` · reached `db-01` · 4.2 GB left at 04:51 · confidence 94%"* — and the funnel (212k → 1).
 
 **v1.1 UI additions (from RESEARCH.md):**
 - **Session-span waterfall** (Jaeger/Zipkin-style) replaces per-entity lanes: each session is a bar; a pivot is a child bar starting inside its parent; signals are markers on spans; repeated events collapse into a single "×11" summary edge/marker.
@@ -129,13 +106,13 @@ Working project with deployed demo where practical · source repo with clear REA
 - **Event rows show signal chips** (detector-tagged events); Evidence Drawer shows the rule's `level`, `tags`, and `falsepositives` ("how this could be benign").
 - **Footer:** ATT&CK copyright notice; link to Methods → prior art.
 
-**Visual identity:** "forensic dossier." Near-black ink background, warm paper-white for dossier text, **one** signal color (vermilion) reserved for the compromise path. Type: serif for narrative headings, UI sans, mono for all evidence/log text. No neon, no Matrix rain, no globe. (Run `frontend-design` and `web-design-guidelines` skills on it at hour ~8.)
+**Visual identity:** "forensic dossier." Near-black ink background, warm paper-white for dossier text, **one** signal color (vermilion) reserved for the compromise path. Type: serif for narrative headings, UI sans, mono for all evidence/log text. No neon, no Matrix rain, no globe.
 
 ---
 
 ## 4. Backend architecture
 
-**Stack:** Python 3.12 · FastAPI · Pydantic v2 · SQLite (+FTS5 for raw-line search) · pandas for vectorized detectors · uvicorn · single process, background thread per analysis with SSE progress. *Rejected:* Postgres, DuckDB, Kafka, Celery, microservices (all add setup risk with zero rubric payoff at ≤250k events).
+**Stack:** Python 3.12 · FastAPI · Pydantic v2 · SQLite (+FTS5 for raw-line search) · pandas for vectorized detectors · uvicorn · single process, background thread per analysis with SSE progress. *Rejected:* Postgres, DuckDB, Kafka, Celery, microservices (all add setup risk with no payoff at ≤250k events).
 
 **Pipeline (pure, deterministic, idempotent stages; each emits typed artifacts with provenance):**
 
@@ -238,7 +215,7 @@ EvalResult(scenario_id, metrics{...}, per_entity_matches, per_stage_matches, run
 
 ## 6. API / module boundaries
 
-**Contract-first.** Pydantic models in `core/models.py` → FastAPI emits OpenAPI → `openapi-typescript` generates TS types. **Freeze this by hour ~1.5**; engine and UI then build in parallel (UI against a saved `fixtures/demo_case.json` produced by an early stub pipeline).
+**Contract-first.** Pydantic models in `core/models.py` → FastAPI emits OpenAPI → `openapi-typescript` generates TS types. **Freeze it first**; engine and UI then build in parallel (UI against a saved `fixtures/demo_case.json` produced by an early stub pipeline).
 
 ```
 POST /api/cases                         multipart files → {case_id}
@@ -294,12 +271,12 @@ run_pipeline(case)             -> orchestrates the above, emits progress
 | D11 | **Persistence / evasion** | new authorized_keys, cron, account, auditd stop, log truncation | Persistence | Change windows from context |
 | D12 | **Web attack patterns** *(optional)* | SQLi/traversal/webshell paths, scanner UAs in access logs | Initial access | Pen-test UA allowlist |
 
-### 7.2 Anomaly layer (rubric: "Anomaly detection/rules")
+### 7.2 Anomaly layer
 - **Rarity (surprisal) model:** smoothed counts over `(user,src /24)`, `(user,host)`, `(host,dest)` → −log p. Used by D03/D04/D08/D10.
 - **Robust stats:** median/MAD z-scores for volumes (bytes, failures/hr, file reads).
 - **Circular-hour profiles** per user for D05.
 - **Baseline policy:** (a) if the case has a known attack-free lead-in (generator guarantees ≥24h), baseline = lead-in; (b) else whole-dataset robust stats under an *explicit, UI-visible* "attacker is a small minority" assumption. **Known weakness:** baseline poisoning by a long-dwell attacker — listed in Limitations.
-- **Optional experimental:** IsolationForest as a *corroborating* feature, flagged "experimental", default off. If time is tight, **cut** (adds opaque score, no rubric gain).
+- **Optional experimental:** IsolationForest as a *corroborating* feature, flagged "experimental", default off, and the first thing to **cut** (adds an opaque score with little explanatory value).
 
 ### 7.3 The central idea: consequence weighting
 A signal's weight depends on what *follows* it through predicate links. Failed brute force with no success → κ=0.2. Same brute force followed by success → escalate → lateral → exfil → κ=1.0. This is what makes the loud decoy rank low *by construction*, not by hand-tuning.
@@ -388,11 +365,11 @@ produces[]  : predicate instances the signal establishes (bound to its entities 
 
 ---
 
-## 11. Bonus-criterion strategy (not an afterthought)
+## 11. Connecting events into an attack sequence (the central goal)
 
-Bonus text: *"Connect multiple events and explain the likely attack sequence instead of flagging isolated events only."*
+Goal: *connect multiple events and explain the likely attack sequence instead of flagging isolated events only.*
 
-| Requirement fragment | Where it's built in |
+| Goal fragment | Where it's built in |
 |---|---|
 | "Connect multiple events" | `correlate/` predicate-link graph (prerequisite/consequence chaining); Event→Signal→Incident hierarchy |
 | "explain the likely attack sequence" | `reconstruct/` ordered `AttackStep` chain with justified edges + templated narrative |
@@ -419,7 +396,7 @@ Bonus text: *"Connect multiple events and explain the likely attack sequence ins
 | **Eval sweep** | `python -m eval.sweep --seeds 1..300 --tiers easy,med,hard` vs **B0 naive per-signal**, **B1 time-window-only grouping**, **B2 221B** | outputs `docs/benchmark.md` + JSON consumed by the app |
 | **Metrics** | attacker-IP recall · compromised-account recall · false-suspect rate · incident precision · **stage-order accuracy** (Kendall τ) · alert compression · **cluster purity** (share of an incident's signals that belong to the true attack) · **gap-recall** (injected log loss flagged as GAP) · time-to-detect · runtime · *breakdown by stealth tier and per template* | **Publish misses honestly** |
 | **Reproducibility** | seeded RNG, pinned versions, `pipeline_version` stamp, `make bench` | |
-| **Public-data sanity** *(optional)* | (a) **Loghub OpenSSH**: parser robustness only (no attack labels). (b) *Stretch:* a slice of **AIT Log Data Set v2.0** (auth + Apache logs, **line-level attack labels**; CC BY-NC-SA 4.0; whole set is 130.6 GB — only if a small slice is practical). Never committed; fetch-script; attribution in README | 30–60-min item, cut first |
+| **Public-data sanity** *(optional)* | (a) **Loghub OpenSSH**: parser robustness only (no attack labels). (b) *Stretch:* a slice of **AIT Log Data Set v2.0** (auth + Apache logs, **line-level attack labels**; CC BY-NC-SA 4.0; whole set is 130.6 GB — only if a small slice is practical). Never committed; fetch-script; attribution in README | optional, cut first |
 | **E2E UI** | one Playwright smoke: open demo case → play replay → open evidence drawer → reveal | + `agent-browser` screenshots for README |
 
 **Runtime targets:** parse+analyze 200k events < 15 s; replay interaction 60 fps on ≤ 30 nodes.
@@ -437,15 +414,15 @@ Bonus text: *"Connect multiple events and explain the likely attack sequence ins
 - **Outputs:** raw log files in native formats (+ `truth.json`, stored server-side, never visible to the pipeline). Truth references `(file, line)` pairs ⇒ stable event IDs.
 - Deterministic: `random.Random(seed)`; ≤ 5 s for 200k events.
 
-**Live-seed flow:** judge states a number → `POST /api/scenarios` → ingest/analyze → verdict → `POST /reveal` → side-by-side *Predicted vs Truth*: attacker IPs ✔/✘, compromised accounts ✔/✘, stage order, per-stage event overlap, alert compression, vs. B0/B1 baselines.
+**Live-seed flow:** the user picks a number → `POST /api/scenarios` → ingest/analyze → verdict → `POST /reveal` → side-by-side *Predicted vs Truth*: attacker IPs ✔/✘, compromised accounts ✔/✘, stage order, per-stage event overlap, alert compression, vs. B0/B1 baselines.
 
-**Safety net:** run 2–5k seeds before the demo; fix every failure class; cap sliders at validated ranges; rehearse the miss path ("here is exactly where we fall short").
+**Safety net:** sweep thousands of seeds; fix every failure class; cap sliders at validated ranges; show misses openly ("here is exactly where it falls short").
 
 ---
 
 ## 14. Scope control
 
-### Absolutely essential (done by hour ~8; this is the minimum that still wins points)
+### Absolutely essential (the minimum useful product)
 - Pydantic models + OpenAPI contract; SQLite store
 - Parsers: **sshd/auth.log**, **nginx/apache access**, **generic CSV/JSON (alias mapping)**; quarantine + parse report
 - Normalize: UTC, stable IDs, dedupe, sessions
@@ -470,26 +447,26 @@ Bonus text: *"Connect multiple events and explain the likely attack sequence ins
 ### Optional
 Attack-Flow-style JSON export · AIT-LDS slice validation · YAML rule loader for simple detectors · LLM narrative rephrase + validator · Windows Security parser · MITRE tooltips · impossible-travel with GeoIP · Loghub sanity check · PDF export · manual column-mapper UI · live-stream mode · D12
 
-### Cut immediately when time gets tight (in this order)
+### First to cut if scope must shrink (in this order)
 1. LLM layer · 2. Live-stream mode · 3. Extra parsers · 4. D12/impossible-travel · 5. Entity profile pages · 6. PDF export · 7. IsolationForest (already off) · 8. Any *new* UI polish beyond replay + dossier
 
 ### Risk-reducing architectural decisions
-Single process & SQLite · static SPA served by API · deterministic engine · contract-first with fixture JSON (UI never blocked) · generator emits real raw formats · demo case pre-baked into the Docker image · LLM off by default · feature flags per detector · `git init` now & commit hourly (also the "pre-existing code" defense).
+Single process & SQLite · static SPA served by API · deterministic engine · contract-first with fixture JSON (UI never blocked) · generator emits real raw formats · demo case pre-baked into the Docker image · LLM off by default · feature flags per detector · small, frequent commits.
 
 ### Things deliberately *removed* from the design
 ML/deep anomaly detection as primary · LLM-as-detector / chat-with-logs · force-directed graph · world map/globe · live Kafka-style streaming · Postgres/Redis/Celery · multi-tenant/auth · containment actions · mobile layout.
 
 ---
 
-## 15. Rubric mapping
+## 15. Quality goals
 
-| Rubric | Weight | What demonstrates it |
-|---|---|---|
-| Functionality & Completion | 30% | All six must-haves live: ingestion (3 formats + parse report), rules+anomaly detectors, suspect users/IPs with roles, event→signal→incident grouping, incident timeline, evidence drawer. Deployed, no-login demo. Works on uploads *and* generated scenarios. |
-| Technical Implementation | 20% | Staged deterministic pipeline; session stitching; predicate-based correlation (prerequisite/consequence model); consequence-weighted scoring with waterfall; order-invariant & idempotent; contract-first API; architecture diagram. |
-| Innovation & Problem Understanding | 20% | Incident-first design; "not flagged and why"; honest gaps/alternate hypotheses; live seeded verification with hidden answer key; naive-vs-reconstructed proof. Directly the stated bonus. |
-| UX / Presentation | 15% | Verdict card readable in 10 s; replay + scrubber; sentence→raw-line evidence chips; forensic-dossier identity; 90-s video + rehearsed 4-min demo. |
-| Testing, Edge Cases & Reliability | 15% | Verify view: benchmark over hundreds of seeds with misses shown; adversarial suite; property tests; quarantine of malformed input; clean-scenario false-positive rate; reproducibility stamp. |
+| Goal | What demonstrates it |
+|---|---|
+| Functionality & completion | All six core capabilities live: ingestion (3 formats + parse report), rules+anomaly detectors, suspect users/IPs with roles, event→signal→incident grouping, incident timeline, evidence drawer. Deployed, no-login demo. Works on uploads *and* generated scenarios. |
+| Technical implementation | Staged deterministic pipeline; session stitching; predicate-based correlation (prerequisite/consequence model); consequence-weighted scoring with waterfall; order-invariant & idempotent; contract-first API; architecture diagram. |
+| Problem understanding | Incident-first design; "not flagged and why"; honest gaps/alternate hypotheses; live seeded verification with hidden answer key; naive-vs-reconstructed proof. |
+| UX / presentation | Verdict card readable in 10 s; replay + scrubber; sentence→raw-line evidence chips; forensic-dossier identity; explainer video. |
+| Testing, edge cases & reliability | Verify view: benchmark over hundreds of seeds with misses shown; adversarial suite; property tests; quarantine of malformed input; clean-scenario false-positive rate; reproducibility stamp. |
 
 ---
 
@@ -497,28 +474,28 @@ ML/deep anomaly detection as primary · LLM-as-detector / chat-with-logs · forc
 
 | # | Risk | Where it bites | Mitigation baked into design |
 |---|---|---|---|
-| 1 | **Synthetic-data circularity** ("you wrote both sides") | Judging | Generator → raw files → ordinary parser; truth hidden; randomized templates; adversarial knobs; judge-supplied seed; optional real-log sanity; accept arbitrary uploads |
-| 2 | **Live seed fails** | Demo | Pre-sweep thousands of seeds; cap sliders to validated ranges; rehearsed graceful-miss narration; pre-baked demo case as fallback |
-| 3 | Organizer logs in an unknown format | Functionality | Parser registry + generic CSV/JSON alias mapper; visible quarantine; (optional) column-mapper UI |
+| 1 | **Synthetic-data circularity** ("you wrote both sides") | Credibility | Generator → raw files → ordinary parser; truth hidden; randomized templates; adversarial knobs; user-supplied seed; optional real-log sanity; accept arbitrary uploads |
+| 2 | **Live seed fails** | Live verification | Pre-sweep thousands of seeds; cap sliders to validated ranges; misses shown openly; pre-baked demo case as fallback |
+| 3 | Logs in an unknown format | Functionality | Parser registry + generic CSV/JSON alias mapper; visible quarantine; (optional) column-mapper UI |
 | 4 | False incident merges | Detection quality | Predicate link required; ≥2-stage admission; soft links only attach; ActorCluster is entity-level only |
 | 5 | Baseline poisoning / no clean window | Detection quality | Lead-in baseline in scenarios; explicit assumption + limitation otherwise |
 | 6 | Over-fitting detectors to own generator | Credibility | Held-out template (e.g. `T3`) never used for tuning; report per-template results |
 | 7 | Hairball graph / UI clutter | UX | Incident subgraph only (≤ ~25 nodes), layered stage-column layout, deterministic positions |
-| 8 | Scope explosion (12 detectors × UI × generator) | Completion | Essential/important/optional/cut tiers; kill-rule at hour 5 checkpoint |
-| 9 | LLM hallucination / latency / key limits | Demo | Off critical path; validator; template fallback; cached narratives |
-| 10 | Performance on 200k events | Demo | Pre-compiled regex, batch inserts, vectorized detectors, stage caching; perf test in suite |
-| 11 | Deploy failure / broken public link | Judging (functionality) | Single Docker image with baked demo case; deploy skeleton in first hour; incognito check; local-run + video fallback |
-| 12 | Cyber-literacy gap in judges | Judging | Plain-English claims; ATT&CK names only as small tags; verdict card first |
-| 13 | "Just another dashboard" perception | Judging | Whodunit demo flow; Naive toggle; Verify view; evidence-by-sentence |
-| 14 | Rule/license issues | Disqualification | Fresh repo + hourly commits; disclosures; Loghub not redistributed |
-| 15 | Many competitors ship an LLM "attack story" (Elastic Attack Discovery-style) that looks similar at first glance | Judging (innovation) | Lead with what an LLM wrapper can't do: predicate-justified chains, Watchlist/"not flagged" explanations, GAP findings, live seed reveal, B0/B1/B2 benchmark; README "Prior art" shows we know the lineage |
+| 8 | Scope explosion (12 detectors × UI × generator) | Completion | Essential/important/optional/cut tiers; end-to-end checkpoint before new features |
+| 9 | LLM hallucination / latency / key limits | Explanation | Off critical path; validator; template fallback; cached narratives |
+| 10 | Performance on 200k events | Responsiveness | Pre-compiled regex, batch inserts, vectorized detectors, stage caching; perf test in suite |
+| 11 | Deploy failure / broken public link | Availability | Single Docker image with baked demo case; deploy skeleton early; check from a logged-out browser; local run as fallback |
+| 12 | Cyber-literacy gap in readers | Comprehension | Plain-English claims; ATT&CK names only as small tags; verdict card first |
+| 13 | "Just another dashboard" perception | Positioning | Whodunit flow; Naive toggle; Verify view; evidence-by-sentence |
+| 14 | License issues | Legal | No third-party security code; disclosures; Loghub not redistributed |
+| 15 | Many tools ship an LLM "attack story" (Elastic Attack Discovery-style) that looks similar at first glance | Positioning | Lead with what an LLM wrapper can't do: predicate-justified chains, Watchlist/"not flagged" explanations, GAP findings, live seed reveal, B0/B1/B2 benchmark; README "Prior art" shows we know the lineage |
 
 ---
 
 ## 17. Recommended project structure
 
 ```
-Algothon Hackathon/221b/
+221b/
 ├─ README.md                  # problem, solution, features, setup, tech, disclosures, limitations
 ├─ Dockerfile  Makefile  pyproject.toml
 ├─ docs/
@@ -552,18 +529,17 @@ Algothon Hackathon/221b/
 
 ---
 
-## 18. Build plan (clock hours from 10:00)
+## 18. Build order
 
-| When | Goal | Gate |
+| Phase | Goal | Gate |
 |---|---|---|
-| 0:00–0:45 | `git init`; scaffold; **freeze contract** (models + OpenAPI); deploy skeleton to public URL | skeleton live |
-| 0:45–2:30 | Generator (T1+T2+clean+decoys+truth, raw-format writers) ‖ sshd/web/CSV parsers | files generate & parse |
-| 2:30–5:00 | Normalize, baselines, essential detectors, correlation, reconstruction, scoring, claims; `eval` harness + first sweep. **In parallel:** UI against fixture JSON (shell, funnel, dossier, evidence drawer) | pipeline finds attacker on T1 |
-| **5:00 checkpoint** | generator → detect → timeline → reveal works end-to-end. **If not: stop adding features.** | |
-| 5:00–8:00 | Replay graph + scrubber + timeline lanes; Verify view; dismissals; hypotheses; adversarial + property tests; sweep tuning (held-out T3) | benchmark published |
-| 8:00–9:30 | Naive toggle, gaps, report export, polish (frontend-design / web-design-guidelines passes), pre-sweep thousands of seeds | |
-| 9:30–10:00 (21:30–22:00 wall) | **Freeze.** README, architecture diagram, 90-s video, deploy verification (incognito) | tag `submission-v1` |
-| 22:00–23:00 | Submission buffer only. **Submit by 22:30.** | |
+| 1 | Scaffold; **freeze contract** (models + OpenAPI); deploy skeleton to a public URL | skeleton live |
+| 2 | Generator (T1+T2+clean+decoys+truth, raw-format writers) ‖ sshd/web/CSV parsers | files generate & parse |
+| 3 | Normalize, baselines, essential detectors, correlation, reconstruction, scoring, claims; `eval` harness + first sweep. **In parallel:** UI against fixture JSON (shell, funnel, dossier, evidence drawer) | pipeline finds attacker on T1 |
+| **Checkpoint** | generator → detect → timeline → reveal works end-to-end. **If not: stop adding features.** | |
+| 4 | Replay graph + scrubber + timeline lanes; Verify view; dismissals; hypotheses; adversarial + property tests; sweep tuning (held-out T3) | benchmark published |
+| 5 | Naive toggle, gaps, report export, UI polish, pre-sweep thousands of seeds | |
+| 6 | README, architecture diagram, explainer video, deploy verification from a logged-out browser | release |
 
 ---
 
@@ -621,10 +597,10 @@ Algothon Hackathon/221b/
 ---
 
 ## 20. Self-critique (what I'm least sure about)
-- **Detector count vs. time.** Eight essential detectors + generator + UI + eval in ~9 working hours is tight even with Claude Code. The 5:00 checkpoint is the safety valve; the order of cuts is in §14.
-- **Geo/ASN realism.** Without a GeoIP DB, "new source" uses /24 rarity only. Fine for the rubric; "impossible travel" is therefore optional.
+- **Detector count vs. scope.** Eight essential detectors + generator + UI + eval is a lot to build at once. The end-to-end checkpoint is the safety valve; the order of cuts is in §14.
+- **Geo/ASN realism.** Without a GeoIP DB, "new source" uses /24 rarity only. Fine for synthetic topologies; "impossible travel" is therefore optional.
 - **Calibration.** Confidence numbers are hand-built; the benchmark may reveal over-confidence. Show a small reliability table rather than claiming calibration.
-- **Biggest hole in the story:** judges may still discount synthetic data. The live-seed reveal, the real-format round-trip, optional Loghub sanity check, and any organizer-supplied log are the answers — none is bulletproof. Say so in Limitations.
+- **Biggest hole in the story:** readers may still discount synthetic data. The live-seed reveal, the real-format round-trip, optional Loghub sanity check, and any real log a user supplies are the answers — none is bulletproof. Say so in Limitations.
 
 ---
 
@@ -635,20 +611,20 @@ Algothon Hackathon/221b/
 | 1 | "Hard link" now **defined** as predicate satisfaction (`requires/produces`, ~8-predicate vocabulary) | §5, §7.4, §8, §9 | Ning–Cui–Reeves; makes edges self-explaining, testable, and gives gap detection for free |
 | 2 | **Gap detection** = unsatisfied prerequisite (+ log-silence heuristic) | §9 | Principled; matches Chainsaw's gap analysis precedent |
 | 3 | **Incident = ≥ 2 distinct stages joined by predicate links; no bypass.** Else **Watchlist**; confirmed-impact single-stage findings = **high-priority Watchlist** (clarified by owner, v1.1.1) | §8, §3 | Sentinel Fusion rule; cleanly handles the loud decoy |
-| 4 | **Scenario templates** (~5) name incidents + add confidence; generic chaining stays as the "emerging" path | §8, §3 | Fusion "A following B" scenarios; judge comprehension |
+| 4 | **Scenario templates** (~5) name incidents + add confidence; generic chaining stays as the "emerging" path | §8, §3 | Fusion "A following B" scenarios; reader comprehension |
 | 5 | **Entity risk ledger**, distinct-stage count, **criticality** modifier | §3, §5, §7.4 | Splunk RBA / Elastic; secondary lens only (RBA summation is gameable) |
 | 6 | **ActorCluster** weighted entity resolution (IP rotation / spray) | §5, §8 | Fraud/ER pattern; v1 would have fragmented distributed attacks |
 | 7 | Detector **rule metadata** incl. `falsepositives` | §5, §7.4 | Sigma schema; feeds "how this could be benign" |
 | 8 | **ECS-aligned** event vocabulary; detector-tagged events | §5, §3 | Industry vocabulary; Timesketch analyzers/tags |
 | 9 | **Session-span waterfall** timeline + summary edges | §3, §9 | Jaeger-style readability; KAIROS-style summary graphs |
 | 10 | Eval: **B1 time-only baseline**, **cluster purity**, **gap-recall**; AIT-LDS (stretch) replaces Loghub as "real data" check | §12, §13, §14 | arXiv 2509.12923 framing; Loghub has no labels |
-| 11 | ATT&CK notice; prior-art credits; no third-party security code vendored | §0.4, §17 | Licensing (RESEARCH.md §10) |
-| 12 | New risk row: competitors' LLM "attack story" lookalikes | §16 | Competitive analysis |
+| 11 | ATT&CK notice; prior-art credits; no third-party security code vendored | §0.2, §17 | Licensing (RESEARCH.md §10) |
+| 12 | New risk row: LLM "attack story" lookalikes | §16 | Positioning analysis |
 
-**Unchanged:** problem, product name, pipeline stages, tech stack, deterministic-core principle, generator/truth/reveal design, essential/important/optional/cut structure, 12-hour plan.
+**Unchanged:** problem, product name, pipeline stages, tech stack, deterministic-core principle, generator/truth/reveal design, essential/important/optional/cut structure, build order.
 
 ### v1.1.1 (implementation kickoff clarifications)
 - **Admission rule locked** as above (no confirmed-impact bypass; high-priority Watchlist instead).
 - **Event ID width 8 → 12 hex.** 8 hex (32 bits) gives ~4–5 expected collisions at 200k events (birthday bound); 12 hex makes it negligible. Display may truncate.
-- **AIT-LDS stays a stretch goal only**; no early-hackathon time.
+- **AIT-LDS stays a stretch goal only**; not on the critical path.
 - `backend/` never imports `sim/` except `backend/api/routes_scenarios.py` (the server invoking the generator as a *data source*); enforced by a test. `sim/` may import the shared contract `backend.core.models` (params + truth only).

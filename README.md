@@ -6,7 +6,6 @@
 
 <p align="center">
   <a href="https://two21b.onrender.com"><img alt="Live demo" src="https://img.shields.io/badge/Live%20demo-two21b.onrender.com-E0283F"></a>
-  <img alt="ALGOTHON'26: ALG-CYBER-01" src="https://img.shields.io/badge/ALGOTHON'26-ALG--CYBER--01-1C2128">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
   <img alt="API: FastAPI" src="https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white">
   <img alt="UI: React 18 + TypeScript" src="https://img.shields.io/badge/UI-React%2018%20%2B%20TypeScript-61DAFB?logo=react&logoColor=black">
@@ -18,8 +17,7 @@
   🌐 <a href="https://two21b.onrender.com">Try it live</a> &nbsp;·&nbsp;
   📊 <a href="docs/benchmark.md">Benchmark</a> &nbsp;·&nbsp;
   🧪 <a href="docs/benchmark_heldout.md">Held-out test</a> &nbsp;·&nbsp;
-  📐 <a href="docs/SPEC.md">Spec</a> &nbsp;·&nbsp;
-  🎬 <a href="docs/DEMO.md">Demo script</a>
+  📐 <a href="docs/SPEC.md">Spec</a>
 </p>
 
 ---
@@ -154,4 +152,4 @@ python -m eval.demo_snapshot                                     # refresh the s
 
 More detail: [SPEC](docs/SPEC.md) · [RESEARCH](docs/RESEARCH.md) · [DESIGN](docs/DESIGN.md)
 
-<p align="center"><sub>Built for <b>ALGOTHON'26</b>, ALG-CYBER-01 "Find the Intruder" · 221B Baker Street sends its regards</sub></p>
+<p align="center"><sub>221B Baker Street sends its regards 🔍</sub></p>

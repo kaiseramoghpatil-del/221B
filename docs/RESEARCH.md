@@ -1,7 +1,7 @@
 # 221B — Research: Prior Art, Proven Patterns, and What to Steal
 
 **Purpose:** ground 221B's architecture in established security engineering before any code is written; identify where `SPEC.md` should change; avoid reinventing solved problems; avoid license mistakes.
-**Date of research:** 2026-10-04 (ALGOTHON'26 day). Companion: `SPEC.md` (updated to v1.1 as a result of this document).
+**Date of research:** 2026-10-04. Companion: `SPEC.md` (updated to v1.1 as a result of this document).
 
 ---
 
@@ -14,7 +14,7 @@
    - **Entity-level risk ledger** from Splunk RBA as a second lens (risk by entity over time, distinct-tactic count), plus **asset/identity criticality** as a risk modifier — while keeping chain-based scoring, because naive RBA *summation* is exactly what a loud decoy exploits.
    - **Weighted entity resolution** (fraud-style linkage) for attacker infrastructure: IP-rotation and distributed spray are resolved into an `ActorCluster` by summed linkage evidence, while *incident* merging still needs a predicate/hard link.
    - **Better baselines in eval:** add a **time-window-only grouping baseline** and **cluster purity** metric. A 2025 graph-alert-contextualisation paper reports 81.6% purity for entity-pivot grouping vs 30.4% for time-only — we should reproduce that *shape* of result on our own scenarios.
-3. **Competitive reality check:** the cyber-log hackathon entries I could find are consistent with the prior suspicion — threshold rules (">10 failed logins", ">10 404s"), Isolation Forest, a chart dashboard, sometimes an LLM or blockchain buzzword. The *obvious* AI-assisted upgrade (feed alerts to an LLM, get an "attack story") is exactly what Elastic ships commercially as Attack Discovery, so expect many teams to do it. **Our differentiator must therefore be what an LLM wrapper cannot do: deterministic, evidence-checked chains and live verifiability.**
+3. **Positioning check:** the simple log-analysis tools I could find follow the same pattern — threshold rules (">10 failed logins", ">10 404s"), Isolation Forest, a chart dashboard, sometimes an LLM or blockchain buzzword. The *obvious* AI upgrade (feed alerts to an LLM, get an "attack story") is exactly what Elastic ships commercially as Attack Discovery, so it is easy to reproduce. **Our differentiator must therefore be what an LLM wrapper cannot do: deterministic, evidence-checked chains and live verifiability.**
 4. **Licensing:** the safe path is *reimplement patterns, copy no code*. Several of the best tools are copyleft or source-available (Hayabusa AGPLv3, Chainsaw GPL-3.0, Elastic detection-rules ELv2, Wazuh core GPLv2). Standards and schemas (OCSF, ECS, Attack Flow) are Apache-2.0 and safe to align with. ATT&CK use requires a copyright notice in the product.
 5. **Better external-validity data than Loghub exists:** the **AIT Log Data Set v2.0** ships *ground-truth labels by log line number* with auth and Apache logs (CC BY-NC-SA 4.0). It is huge (130.6 GB compressed across eight datasets), so it's a stretch goal, not a plan.
 
@@ -26,7 +26,7 @@ Legend: **[F]** = page fetched/read today · **[S]** = search-result summary onl
 
 | # | Source | Status | Used for |
 |---|---|---|---|
-| 1 | ALGOTHON'26 Rule Book & CYBER-01 statement (project PDFs) | [F] | constraints, rubric (see SPEC §0) |
+| 1 | 221B problem statement and constraints (SPEC §0) | [F] | scope, constraints |
 | 2 | Microsoft Learn — *Advanced multistage attack detection (Fusion)* — learn.microsoft.com/azure/sentinel/fusion | [F] | incident definition, tactic+entity mapping requirement, scenario templates |
 | 3 | Splunk ES — *Risk scoring / risk-based alerting* — help.splunk.com (ES 8.4) | [F] + [S] | risk objects, intermediate findings, modifiers, thresholds, tactic-count rule |
 | 4 | Elastic Security — *Attack Discovery* docs/blog | [S] | LLM-based alert→attack-chain narrative; asset criticality as input |
@@ -48,11 +48,10 @@ Legend: **[F]** = page fetched/read today · **[S]** = search-result summary onl
 | 20 | Loghub (logpai) | [S] | research/academic use, cite repo+paper; **no attack labels** |
 | 21 | AIT Log Data Set v2.0 — zenodo.org/records/5789064 | [F] | line-level attack labels; CC BY-NC-SA 4.0; 130.6 GB |
 | 22 | Splunk BOTS, LANL Unified Host & Network, DARPA OpTC | [S] | candidate datasets (see §10) |
-| 23 | Hackathon entries: LogDefend.AI (Devfolio, AceHack 3.0), SentinelShield (Peerlist), Chagu (DEV), DEV log-analysis post | [F]/[S] | competitive pattern evidence |
-| 24 | Survey: *AI-Driven Security Alert Screening and Alert Fatigue Mitigation in SOCs* — arXiv 2605.08316 | surfaced, **not read** | listed for later; no claims drawn |
-| 25 | Jaeger/Zipkin trace waterfalls; OpenTelemetry span model; Splink/Fellegi–Sunter linkage; W3C PROV | [K] | UX pattern / linkage weights / provenance vocabulary |
+| 23 | Survey: *AI-Driven Security Alert Screening and Alert Fatigue Mitigation in SOCs* — arXiv 2605.08316 | surfaced, **not read** | listed for later; no claims drawn |
+| 24 | Jaeger/Zipkin trace waterfalls; OpenTelemetry span model; Splink/Fellegi–Sunter linkage; W3C PROV | [K] | UX pattern / linkage weights / provenance vocabulary |
 
-**Honest limits:** I did not find a *verified list of winning* cyber hackathon projects. The competitive section is built from a thin sample of public entries plus the structure of the problem; it should be read as informed inference, not data.
+**Honest limits:** the positioning section (§6) is built from a thin sample of public projects plus the structure of the problem; it should be read as informed inference, not data.
 
 ---
 
@@ -79,7 +78,7 @@ Legend: **[F]** = page fetched/read today · **[S]** = search-result summary onl
 ### 3.3 Elastic Security — Attack Discovery [S]
 - **Solves:** triage by correlating alerts into attack chains with an LLM.
 - **Pipeline:** select alerts via hybrid search → LLM groups into "discoveries" with narrative, involved users/hosts, ATT&CK mapping, possible threat actor; considers severity, risk scores, asset criticality.
-- **Lesson for competition:** the *LLM-groups-alerts-into-a-story* approach is a shipped commercial feature, and trivially reproducible by any AI-assisted team. It is **not** a differentiator — and its weakness (nondeterministic, unverified grouping) is our wedge.
+- **Lesson for positioning:** the *LLM-groups-alerts-into-a-story* approach is a shipped commercial feature, and easy to reproduce. It is **not** a differentiator — and its weakness (nondeterministic, unverified grouping) is our wedge.
 - **Adapt:** asset criticality as input (see 3.2). **Reject:** LLM as grouping/decision engine.
 
 ### 3.4 Timesketch (Google, Apache-2.0) [F]+[S]
@@ -101,11 +100,11 @@ Legend: **[F]** = page fetched/read today · **[S]** = search-result summary onl
 ### 3.7 Sigma (SigmaHQ) [S]
 - Generic YAML detection-rule format: `title, id, status, description, logsource, detection (selection/filter/condition), fields, falsepositives, level, tags`. Code MIT; rules under **DRL 1.1**.
 - **Adapt (inspired pattern):** use Sigma's **rule metadata schema for *every* detector** — especially `falsepositives` and `level`/`tags` — so each signal can display "*why this could be benign*" (feeds the "Not flagged" and confidence UX). Optionally express the simple match-style detectors (privilege escalation, persistence, web patterns) as small YAML rules.
-- **Reject:** a full Sigma engine/backends — they compile to SIEM query languages, not in-memory Python; large time sink for no rubric gain.
+- **Reject:** a full Sigma engine/backends — they compile to SIEM query languages, not in-memory Python; large time sink for little gain.
 
 ### 3.8 Schemas: OCSF and ECS (both Apache-2.0) [S]
 - Normalized event vocabularies (OCSF authentication class: activity, status, user, endpoints; ECS `event.category/type/action/outcome`, `source.ip`, `user.name`, `host.name`).
-- **Adapt:** align our `Event` **enumerations and field vocabulary with ECS** (categories: authentication / network / file / process / web / iam; outcome: success / failure / unknown) and ship a one-page mapping. Signals "we speak the industry's language" to judges for near-zero cost.
+- **Adapt:** align our `Event` **enumerations and field vocabulary with ECS** (categories: authentication / network / file / process / web / iam; outcome: success / failure / unknown) and ship a one-page mapping. Signals "we speak the industry's language" to analysts for near-zero cost.
 - **Reject:** adopting a full OCSF/ECS implementation or tooling.
 
 ### 3.9 Attack Flow (CTID, Apache-2.0) [F]
@@ -134,7 +133,7 @@ Legend: **[F]** = page fetched/read today · **[S]** = search-result summary onl
 - **Approach:** alerts are nodes; link consecutive alerts sharing "timeline-defining" properties (user, IP, host); cut edges whose time gap exceeds Δ; groups = subgraphs. Graph Matching Networks compare groups to historical incidents.
 - **Result:** cluster **purity 81.63% vs 30.35%** for time-only grouping on the AIT-LDS v2.0 alert set (2.66 M alerts, 8 scenarios). GMN scale problems >1,400 nodes.
 - **Adapt:** (a) validates **entity-pivot linking over time-only**; (b) gives us **evaluation vocabulary** — *purity* and a *time-only baseline*; (c) the Δ-cut rule is a sane default for soft links.
-- **Reject:** GMNs/neural matching — overkill, opaque, unnecessary for 12 h.
+- **Reject:** GMNs/neural matching — overkill, opaque, unnecessary here.
 
 ### 4.3 Provenance-graph intrusion detection and reconstruction — UNICORN, KAIROS, HOLMES, POIROT, ATLAS [S]/[K]
 - **KAIROS:** GNN encoder–decoder over temporal provenance graphs; **reconstructs attack footprints as compact summary graphs**. **UNICORN:** graph sketching for runtime APT detection without signatures. **HOLMES** [K]: maps low-level provenance to ATT&CK-like TTPs and builds a **high-level scenario graph** with a noise-tolerant score. **POIROT** [K]: aligns an attack *query graph* from threat reports to the provenance graph.
@@ -169,15 +168,9 @@ Python libraries we *might* use (all permissive in my understanding [K], verify 
 
 ---
 
-## 6. Hackathon / competitive findings
+## 6. Positioning: what typical log-analysis tools do
 
-Evidence gathered (thin; see limits in §2):
-- **LogDefend.AI** (Devfolio, AceHack 3.0, Apr 2024): Django, ML + NLP, charts; positioned as accessible log analysis for website owners; deliverables = charts, doc, slide deck. [F]
-- **SentinelShield** (Peerlist): real-time WAF/security dashboard reading live server logs; **rule-based + Isolation Forest**; "built in 24 hours." [S]
-- **Chagu** (DEV): "AI-driven" autonomous detection/response; **blockchain for tamper-proof audit trail.** [S]
-- **DEV tutorial-style log tool:** fixed-threshold rules (>10 failed logins; >10 404s; >5 server errors per IP). [S]
-
-**Recurring patterns (the baseline we must beat):**
+**Recurring patterns in simple log-analysis tools (the baseline to beat):**
 1. Fixed-threshold rules per event type — each flags isolated IPs.
 2. Isolation Forest/one-class model → anomaly table + chart.
 3. Real-time dashboard with counters and a world map.
@@ -185,29 +178,25 @@ Evidence gathered (thin; see limits in §2):
 5. Demo on a *single canned log file* with no ground truth and no false-positive analysis.
 6. Graph visuals that render nodes/edges with no causal justification.
 
-**What we infer about the field (inference, not data):** with ~700 AI-assisted teams, many CYBER-01 entries will be a polished version of (1)–(4) plus an LLM "attack narrative" (the Elastic-style move). They will look good and be unverifiable.
-
 **Where 221B is meaningfully different, grounded in the research:**
-| Typical entry | 221B | Research backing |
+| Typical tool | 221B | Research backing |
 |---|---|---|
 | Isolated anomalies | Incidents with predicate-justified chains, ≥2-stage admission | Fusion; Ning et al. |
 | Loudest = most suspicious | Consequence-weighted; loud-no-success → Watchlist with explanation | RBA critique; Fusion |
 | LLM decides/groups | Deterministic core; LLM only rephrases, validated | OCR-APT grounding; Elastic as cautionary precedent |
 | No ground truth | Seeded scenarios, hidden answer key, line-level truth, purity/recall vs time-only and naive baselines | arXiv 2509.12923 metric framing |
 | Hides gaps | Gap = unsatisfied prerequisite, reported as a finding | Ning et al.; Chainsaw gap analysis |
-| Canned demo | Judge-chosen seed + live reveal | (our own; no precedent found) |
-
-**Do not reproduce** any specific submission; they are cited for pattern awareness only.
+| Canned demo | User-chosen seed + live reveal | (our own; no precedent found) |
 
 ---
 
 ## 7. Pattern-by-pattern comparison
 
-| Pattern | Source | Value to rubric | Cost (12 h) | Class | Decision |
+| Pattern | Source | Value | Cost | Class | Decision |
 |---|---|---|---|---|---|
 | Prerequisite/consequence predicates | Ning et al. | Correlation, explainability, gaps | Low–Med | Inspired | **ADOPT (core)** |
 | ≥2-stage incident admission + Watchlist | Fusion | Detection quality, FP control | Low | Inspired | **ADOPT** |
-| Declarative scenario templates ("A following B") for naming/confidence | Fusion | Judge comprehension, explainability | Low | Inspired | **ADOPT (small set ~5)** |
+| Declarative scenario templates ("A following B") for naming/confidence | Fusion | Reader comprehension, explainability | Low | Inspired | **ADOPT (small set ~5)** |
 | Entity risk ledger + distinct-stage count | Splunk RBA | UX, scoring | Low–Med | Inspired | **ADOPT** |
 | Asset/identity criticality modifier | Splunk, Elastic | Realism, blast radius | Low | Inspired | **ADOPT** |
 | Weighted entity resolution → ActorCluster | Fraud/ER | Handles IP rotation/spray | Med | Inspired | **ADOPT (hand-weighted)** |
@@ -242,7 +231,7 @@ Evidence gathered (thin; see limits in §2):
 9. **Detector-tagged events** (event rows show contributing signal chips; timeline filters by tag). *SPEC §3, §5.*
 10. **Session-span waterfall** timeline and **summary edges** in the replay graph. *SPEC §3, §9.*
 11. **Evaluation upgrades:** baselines **B0 naive per-signal**, **B1 time-window-only grouping**, **B2 221B**; add **cluster purity**, **incident precision**, **gap-recall** (did we flag the log-loss we injected?). *SPEC §12, §13.*
-12. **Compliance footer:** ATT&CK copyright notice; dataset/attribution section. *SPEC §0.4, README.*
+12. **Compliance footer:** ATT&CK copyright notice; dataset/attribution section. *SPEC §0.2, README.*
 
 ---
 
@@ -251,14 +240,14 @@ Evidence gathered (thin; see limits in §2):
 | Rejected | Why |
 |---|---|
 | GNN/Graph Matching Networks (KAIROS, arXiv 2509.12923) | Opaque, needs training data, scalability caveats the paper itself reports; zero explainability gain over predicates. |
-| Isolation Forest / autoencoders as the core | Produces the "anomaly table" every competitor ships; unexplainable; poor on adversarial sparse auth data. (Allowed only as a default-off corroborating feature.) |
-| LLM as grouping/attack-identification engine (Elastic Attack Discovery style) | Nondeterministic, unverifiable, and the obvious thing every AI-assisted team will do. OCR-APT shows even research systems keep the LLM downstream of deterministic extraction. |
-| Embedding Timesketch/OpenSearch/Postgres/Redis/Celery | 12 h budget; all infra, no rubric gain. |
+| Isolation Forest / autoencoders as the core | Produces the "anomaly table" most simple tools ship; unexplainable; poor on adversarial sparse auth data. (Allowed only as a default-off corroborating feature.) |
+| LLM as grouping/attack-identification engine (Elastic Attack Discovery style) | Nondeterministic, unverifiable, and the obvious thing most AI-assisted tools do. OCR-APT shows even research systems keep the LLM downstream of deterministic extraction. |
+| Embedding Timesketch/OpenSearch/Postgres/Redis/Celery | All infrastructure, no gain at this scale. |
 | Full Sigma engine / pySigma backends | Targets SIEM query languages, not in-memory Python; heavy; marginal value. |
 | Whole-system provenance/process-tree modelling | Needs endpoint audit data; our inputs are auth/web/network logs. |
 | Pure risk-sum scoring (RBA-style) as the incident score | Gamed by loud, unsuccessful sources. Kept only as a secondary lens. |
 | World map / threat-intel feeds / live streaming | Buzzword features, no support from the problem statement or research. |
-| Blockchain "tamper-proof logs" | Seen in competing entries as a buzzword; irrelevant to detection quality. |
+| Blockchain "tamper-proof logs" | Seen in other tools as a buzzword; irrelevant to detection quality. |
 | Copying any rule corpus (Elastic ELv2, Wazuh GPL) | License risk. |
 
 ---
@@ -278,13 +267,12 @@ Evidence gathered (thin; see limits in §2):
 | OCSF, ECS | Apache-2.0 | Align vocabulary | Cite in docs |
 | MITRE ATT&CK | Royalty-free with notice | Use tactic/technique names/IDs | Include: *"© 2026 The MITRE Corporation. This work is reproduced and distributed with the permission of The MITRE Corporation."* |
 | Loghub | Research/academic use; **cite repo + paper** | Optional parser-robustness check | Don't redistribute in repo; cite Zhu et al., ISSRE 2023 |
-| **AIT Log Data Set v2.0** | **CC BY-NC-SA 4.0** | Optional validation slice (non-commercial hackathon use) | Attribute; share-alike on derivatives; don't redistribute data |
+| **AIT Log Data Set v2.0** | **CC BY-NC-SA 4.0** | Optional validation slice (non-commercial use) | Attribute; share-alike on derivatives; don't redistribute data |
 | Splunk BOTS | CC0-style per Splunk blog, needs Splunk to load | Not planned | — |
 | DARPA OpTC | "approved for public release" | Not planned (endpoint-level) | — |
 | LANL Unified Host & Network | terms not verified | Not planned | — |
-| Competitor hackathon projects | — | Study only | **Never reproduce** |
 
-**Process rules:** (1) no third-party security code vendored; (2) every borrowed *idea* gets a one-line credit in README → "Prior art & inspirations"; (3) AI-assistance disclosure per Rule Book §4/§5; (4) the scenario generator, detectors, correlator, UI are written from scratch during the event.
+**Process rules:** (1) no third-party security code vendored; (2) every borrowed *idea* gets a one-line credit in README → "Prior art & inspirations"; (3) AI assistance is disclosed in the README; (4) the scenario generator, detectors, correlator and UI are written from scratch.
 
 ---
 
@@ -313,7 +301,7 @@ Evidence gathered (thin; see limits in §2):
 - We lacked a **time-only baseline**; without it, "correlation helps" isn't demonstrated.
 - Unverified in this pass: Hayabusa's full output profile, Attack Flow's exact schema, Security Onion's license, pySigma's license, the content of the arXiv alert-fatigue survey. None are on the critical path.
 
-**Residual risks (research did not remove them):** synthetic-data skepticism; detector count vs time; hand-set weights uncalibrated; AIT-LDS too large to use practically in-event.
+**Residual risks (research did not remove them):** synthetic-data skepticism; detector count vs time; hand-set weights uncalibrated; AIT-LDS too large to use practically.
 
 ---
 
@@ -322,7 +310,7 @@ Evidence gathered (thin; see limits in §2):
 1. **Prerequisites → consequences as the correlation primitive** (Ning–Cui–Reeves, 2002). Every chain edge is a satisfied predicate; every hole is an unsatisfied one.
 2. **Incidents ≠ alerts, and an incident needs ≥ 2 kill-chain stages** (Sentinel Fusion). Single-stage noise goes to a Watchlist.
 3. **Tactic + entity mapping mandatory on every finding** (Fusion, Splunk RBA) — enforced in the Signal schema.
-4. **"A following B" scenario templates to name incidents** (Fusion) — judges read "Credential theft followed by data exfiltration," not "INC-0017."
+4. **"A following B" scenario templates to name incidents** (Fusion) — analysts read "Credential theft followed by data exfiltration," not "INC-0017."
 5. **Risk per entity, over time, with distinct-stage counts** (Splunk RBA) — as the Suspects lens, not the incident score.
 6. **Asset/identity criticality as a risk modifier** (Splunk, Elastic) — makes blast radius mean something.
 7. **Entity-pivot grouping beats time-only grouping — prove it** (arXiv 2509.12923): ship the time-only baseline and report purity.
@@ -333,8 +321,8 @@ Evidence gathered (thin; see limits in §2):
 12. **Log-gap detection as a forensic feature** (Chainsaw `analyse`) — reported as a finding, not hidden.
 13. **Sigma-style rule metadata, especially `falsepositives`** — every signal explains how it could be benign.
 14. **Waterfall timelines for nested causality** (Jaeger/Zipkin) — sessions as spans, pivots as children.
-15. **Speak the standards** (ECS/OCSF vocabulary, ATT&CK tags with notice, optional Attack-Flow-style export) — cheap credibility with security-literate judges.
+15. **Speak the standards** (ECS/OCSF vocabulary, ATT&CK tags with notice, optional Attack-Flow-style export) — cheap credibility with security-literate readers.
 
 ---
 
-*Sources (URLs):* learn.microsoft.com/en-us/azure/sentinel/fusion · help.splunk.com/en/splunk-enterprise-security-8/administer/8.4/risk-based-alerting · elastic.co/guide/en/security/current/attack-discovery.html · arxiv.org/html/2509.12923v2 · arxiv.org/pdf/2308.05034 · arxiv.org/pdf/2001.01525 · arxiv.org/pdf/2510.15188 · dx.doi.org/10.1145/586110.586144 · github.com/google/timesketch · github.com/Yamato-Security/hayabusa · github.com/WithSecureLabs/chainsaw · github.com/SigmaHQ/sigma · spdx.org/licenses/DRL-1.0 · github.com/ocsf · github.com/elastic/ecs · github.com/center-for-threat-informed-defense/attack-flow · attack.mitre.org/resources/legal-and-branding/terms-of-use/ · github.com/elastic/detection-rules · github.com/logpai/loghub · zenodo.org/records/5789064 · devfolio.co/projects/logdefendai-c686 · peerlist.io/dnyaneshwar55/project/sentinelshield · dev.to/taimax13/building-chagu-… · dev.to/atenahfr/how-i-built-a-log-analysis-tool-to-detect-network-anomalies-45ed
+*Sources (URLs):* learn.microsoft.com/en-us/azure/sentinel/fusion · help.splunk.com/en/splunk-enterprise-security-8/administer/8.4/risk-based-alerting · elastic.co/guide/en/security/current/attack-discovery.html · arxiv.org/html/2509.12923v2 · arxiv.org/pdf/2308.05034 · arxiv.org/pdf/2001.01525 · arxiv.org/pdf/2510.15188 · dx.doi.org/10.1145/586110.586144 · github.com/google/timesketch · github.com/Yamato-Security/hayabusa · github.com/WithSecureLabs/chainsaw · github.com/SigmaHQ/sigma · spdx.org/licenses/DRL-1.0 · github.com/ocsf · github.com/elastic/ecs · github.com/center-for-threat-informed-defense/attack-flow · attack.mitre.org/resources/legal-and-branding/terms-of-use/ · github.com/elastic/detection-rules · github.com/logpai/loghub · zenodo.org/records/5789064

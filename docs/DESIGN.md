@@ -3,7 +3,7 @@
 ## Concept
 **A forensic report you can interrogate.** The screen reads like the first page of a professional incident-response
 report: the governing finding first, the exhibits that prove it, then numbered findings in which every sentence cites
-log lines. It is light and calm on purpose. Most CYBER-01 entries will ship a dark neon "SOC" dashboard, so 221B
+log lines. It is light and calm on purpose. Most log tools ship a dark neon "SOC" dashboard, so 221B
 should look like the work product of a serious forensic practice, not a game HUD.
 
 Borrowed patterns (interaction and information hierarchy only, no visual copying):
